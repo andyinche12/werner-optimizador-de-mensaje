@@ -28,7 +28,7 @@ const groq = new Groq({
   maxRetries: 3
 });
 
-app.use(express.json({ limit: "10mb" })); // Límite reducido a 10MB para payloads
+app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 function friendlyGroqError(error) {
@@ -165,7 +165,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2 - ¡CON EL FORMATO CORRECTO!)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -194,7 +194,7 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // 🚀 CORRECCIÓN FINAL: DEEPSEEK NO QUIERE UN OBJETO, QUIERE EL STRING DIRECTO.
+    // 🔥 CORRECCIÓN DEFINITIVA: DeepSeek-VL2 exige un objeto con la propiedad "url".
     const payload = {
       model: "deepseek-vl2",
       messages: [
@@ -207,7 +207,7 @@ app.post("/api/vision", async (req, res) => {
             },
             {
               type: "image_url",
-              image_url: image // ✅ CAMBIO CLAVE: Sin el envoltorio { url: ... }
+              image_url: { url: image } // ✅ ESTA ES LA ÚNICA FORMA QUE ACEPTA DEEPSEEK.
             }
           ]
         }

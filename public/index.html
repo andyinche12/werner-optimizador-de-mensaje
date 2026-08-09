@@ -101,26 +101,50 @@
     h2 { font-size: 19px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 
     label { display: block; color: #b8cae2; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+
+    /* ========== INPUT AREA CON MICRÓFONO ========== */
+    .input-area { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+    .input-area textarea { flex: 1; min-height: 150px; resize: vertical; line-height: 1.6; }
+    
     textarea, select {
       width: 100%; color: var(--text); background: rgba(2, 7, 20, 0.6);
       border: 1px solid rgba(93, 155, 220, 0.15); border-radius: 12px; padding: 12px;
       outline: none; font-family: inherit; font-size: 14px; transition: 0.2s;
     }
-    textarea { min-height: 150px; resize: vertical; line-height: 1.6; margin-bottom: 14px; }
     textarea:focus, select:focus { border-color: rgba(94,231,255,0.5); box-shadow: 0 0 0 3px rgba(94,231,255,0.06); }
     select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ea7c5' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; height: 44px; }
 
+    /* Micrófono */
+    .mic-btn {
+      background: rgba(62, 110, 166, 0.2);
+      border: 1px solid rgba(101, 170, 230, 0.2);
+      border-radius: 12px;
+      padding: 12px;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+      min-width: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+    }
+    .mic-btn:hover { background: rgba(62, 110, 166, 0.4); }
+    .mic-btn.listening { background: #ff6685; border-color: #ff6685; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 102, 133, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 102, 133, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 102, 133, 0); } }
+
     .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
 
-    button {
+    button.primary {
       border: 0; border-radius: 12px; padding: 14px 18px; color: #fff;
       font-weight: 700; cursor: pointer; transition: 0.15s;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%;
+      background: linear-gradient(135deg, #168df0, #6955f7); box-shadow: 0 8px 24px rgba(40,169,255,0.2); margin-bottom: 10px;
     }
     button:active { transform: scale(0.97); }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .primary { background: linear-gradient(135deg, #168df0, #6955f7); box-shadow: 0 8px 24px rgba(40,169,255,0.2); margin-bottom: 10px; }
     
     .output-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 14px 0 8px; }
     .output-head strong { color: #b9d8f7; font-size: 13px; }
@@ -148,7 +172,6 @@
       .logo-img { width: 36px; height: 36px; }
       .wrap { padding: 15px; }
       .metrics { grid-template-columns: repeat(3, 1fr); }
-      .metrics > div:nth-child(4), .metrics > div:nth-child(5) { grid-column: span 1; }
     }
   </style>
 </head>
@@ -171,18 +194,20 @@
     </div>
 
     <section class="card">
-      <!-- === Pestaña 1: RESPONDER A UN MENSAJE === -->
       <div id="tab-reply" class="tab-content active">
         <div class="title-row"><h2>📩 Responder a un mensaje</h2></div>
         <label>MENSAJE QUE RECIBISTE</label>
-        <textarea id="msgInput" placeholder="Pega aquí el mensaje que te ha llegado..."></textarea>
       </div>
 
-      <!-- === Pestaña 2: MEJORAR MI MENSAJE === -->
       <div id="tab-polish" class="tab-content">
         <div class="title-row"><h2>✍️ Mejorar mi mensaje</h2></div>
         <label>MI MENSAJE</label>
-        <textarea id="msgInput" placeholder="Escribe aquí el mensaje que quieres enviar y mejorar..."></textarea>
+      </div>
+
+      <!-- INPUT COMPARTIDO CON MICRÓFONO -->
+      <div class="input-area">
+        <textarea id="msgInput" placeholder="Escribe o dicta tu mensaje aquí..."></textarea>
+        <button id="micBtn" class="mic-btn" onclick="toggleVoice()" aria-label="Dictado por voz">🎤</button>
       </div>
 
       <!-- CONTROLES COMPARTIDOS -->
@@ -216,12 +241,11 @@
         </div>
       </div>
 
-      <!-- BOTÓN PRINCIPAL -->
       <button id="actionBtn" class="primary">✨ Generar respuesta</button>
 
-      <!-- RESULTADO -->
+      <!-- RESULTADO CON ETIQUETA DINÁMICA -->
       <div class="output-head">
-        <strong>RESULTADO</strong>
+        <strong id="resultLabel">📩 RESULTADO: Respuesta generada</strong>
         <div style="display: flex; gap: 6px;">
           <button id="speakBtn" class="mini" onclick="toggleSpeak()">🔊 Leer</button>
           <button id="copyBtn" class="mini">📋 Copiar</button>
@@ -247,12 +271,15 @@
     const $ = id => document.getElementById(id);
     let currentMode = 'reply';
     let isSpeaking = false;
+    let recognition = null;
+    let isListening = false;
 
     // ============================================
-    // 🚀 LÓGICA DE CAMBIO DE PESTAÑAS
+    // 🚀 LÓGICA DE CAMBIO DE PESTAÑAS (Y ETIQUETAS)
     // ============================================
     function switchMode(mode) {
       currentMode = mode;
+      
       // Limpiar resultados al cambiar
       $('resultOutput').className = 'output';
       $('resultOutput').textContent = 'Esperando tu mensaje...';
@@ -266,14 +293,87 @@
       const tabId = mode === 'reply' ? 'tab-reply' : 'tab-polish';
       $(tabId).classList.add('active');
       
-      // Actualizar texto del botón
+      // 🔥 CAMBIAR TEXTO DEL RESULTADO Y BOTÓN
       const btn = $('actionBtn');
-      btn.textContent = mode === 'reply' ? '✨ Generar respuesta' : '✨ Mejorar mensaje';
+      const label = $('resultLabel');
+      if (mode === 'reply') {
+        btn.textContent = '✨ Generar respuesta';
+        label.textContent = '📩 RESULTADO: Respuesta generada';
+      } else {
+        btn.textContent = '✨ Mejorar mensaje';
+        label.textContent = '✍️ RESULTADO: Mensaje mejorado';
+      }
       btn.dataset.original = btn.textContent;
       
       // Reiniciar métricas
       document.querySelectorAll('#metrics .metric b').forEach(el => el.textContent = '—');
       $('score').textContent = '—';
+    }
+
+    // ============================================
+    // 🎙️ DICTADO POR VOZ (Speech-to-Text)
+    // ============================================
+    function toggleVoice() {
+      const btn = document.getElementById('micBtn');
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("Tu navegador no soporta dictado por voz. Usa Chrome, Edge o Safari.");
+        return;
+      }
+
+      if (isListening) {
+        recognition.stop();
+        return;
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'es-ES';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = function() {
+        isListening = true;
+        btn.classList.add('listening');
+        btn.textContent = '⏹️';
+      };
+
+      recognition.onresult = function(event) {
+        const textarea = document.getElementById('msgInput');
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+        if (finalTranscript) {
+          textarea.value += (textarea.value.length > 0 ? ' ' : '') + finalTranscript;
+        }
+      };
+
+      recognition.onerror = function(event) {
+        console.error("Error de voz:", event.error);
+        if(event.error === 'not-allowed') {
+          alert("Permiso de micrófono denegado. Habilita el micrófono en tu navegador.");
+        }
+        stopListening();
+      };
+
+      recognition.onend = function() {
+        stopListening();
+      };
+
+      recognition.start();
+    }
+
+    function stopListening() {
+      const btn = document.getElementById('micBtn');
+      isListening = false;
+      btn.classList.remove('listening');
+      btn.textContent = '🎤';
+      if (recognition) {
+        recognition.stop();
+        recognition = null;
+      }
     }
 
     // ============================================
@@ -284,7 +384,7 @@
       const output = $('resultOutput');
       const btn = $('actionBtn');
 
-      if(!input) { output.className = 'output error'; output.textContent = 'Escribe o pega un mensaje primero.'; return; }
+      if(!input) { output.className = 'output error'; output.textContent = 'Escribe o dicta un mensaje primero.'; return; }
       
       output.className = 'output';
       output.textContent = 'Procesando...';
@@ -302,7 +402,7 @@
             style: $("style").value, 
             tone: $("optTone").value, 
             detail: $("detail").value,
-            mode: currentMode // 🔥 Enviamos el modo al backend
+            mode: currentMode
           }) 
         });
         const d = await r.json();
@@ -332,7 +432,7 @@
     });
 
     // ============================================
-    // 🔊 BOTÓN LEER EN VOZ ALTA
+    // 🔊 BOTÓN LEER EN VOZ ALTA (Text-to-Speech)
     // ============================================
     function toggleSpeak() {
       const btn = $('speakBtn');

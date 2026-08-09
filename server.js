@@ -4,8 +4,6 @@ import Groq from "groq-sdk";
 import JSON5 from "json5";
 import path from "path";
 import { fileURLToPath } from "url";
-// 🚀 AÑADIMOS EL SDK DE GEMINI PARA LA VISIÓN
-import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -18,6 +16,10 @@ const PORT = process.env.PORT || 3000;
 // Verificaciones de API Keys
 if (!process.env.GROQ_API_KEY) {
   console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
+  process.exit(1);
+}
+if (!process.env.DEEPSEEK_API_KEY) {
+  console.error("❌ ERROR: Falta DEEPSEEK_API_KEY en el archivo .env");
   process.exit(1);
 }
 
@@ -40,10 +42,10 @@ function friendlyGroqError(error) {
   const errorCode = error?.error?.code || "";
 
   if (errorCode === "model_not_found" || errorCode === "model_decommissioned" || message.includes("does not exist")) {
-    return `El modelo de IA seleccionado no está disponible o fue descontinuado. Revisa la variable GROQ_VISION_MODEL en tu archivo .env y actualízala según https://console.groq.com/docs/models`;
+    return `El modelo de IA seleccionado no está disponible o fue descontinuado.`;
   }
   if (status === 429 || message.includes("rate limit") || message.includes("quota")) {
-    return "Límite de peticiones de Groq excedido. Espera unos minutos y vuelve a intentarlo.";
+    return "Límite de peticiones excedido. Espera unos minutos y vuelve a intentarlo.";
   }
   if (error?.code === "ETIMEDOUT" || error?.code === "ECONNABORTED" || message.includes("timeout")) {
     return "La solicitud tardó demasiado. Revisa tu conexión a internet.";
@@ -51,7 +53,7 @@ function friendlyGroqError(error) {
   if (error?.code === "ENOTFOUND" || error?.code === "ECONNRESET" || message.includes("network")) {
     return "No se pudo conectar con la IA. Revisa tu conexión.";
   }
-  return `Error del servidor de Groq: ${error?.message || "Ocurrió un error inesperado."}`;
+  return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
 // ---------------------------------------------------------
@@ -127,9 +129,6 @@ Si el TONO es "Cariñoso" o "Coqueto":
 - Usa emojis modernos (❤️, 😊, ✨, 🌸, 😉, 😏, 😜) para dar calidez.
 - Si el ESTILO es "Formal" y el TONO es "Cariñoso", usa un lenguaje profesional pero con un toque cálido y amable.
 
-Ejemplo correcto para Tono Cariñoso: "¡Hola mi amor! 😍 Me alegra muchísimo verte por aquí hoy. ¿Cómo estás? Cuéntame, ¿qué te trae a este lugar? Estoy aquí para ti ❤️"
-Ejemplo correcto para Tono Coqueto: "¡Ey! 😉 Vaya, qué sorpresa verte por aquí. Estaba justo pensando en ti... ¿Qué me cuentas? No te vayas sin contarme tus planes, que me interesa mucho 😜✨"
-
 Analiza cinco dimensiones de 0 a 100 (objective, context, instructions, format, constraints).
 El score debe ser el promedio matemático de estas cinco métricas.
 optimizedPrompt debe ser TEXTO PLANO, no un objeto.
@@ -156,7 +155,7 @@ app.post("/api/optimize", async (req, res) => {
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
-      temperature: 0.7, // 0.7 para que sea cálido y natural
+      temperature: 0.7,
       messages: [
         { role: "system", content: optimizerSystemPrompt },
         { role: "user", content: userPrompt }
@@ -177,7 +176,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (GEMINI - ESTABLE Y GRATUITO)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK - CORREGIDO CON FETCH)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -186,10 +185,9 @@ app.post("/api/vision", async (req, res) => {
       return res.status(400).json({ error: "Debes subir una imagen." });
     }
 
-    // Verificar la API Key de Gemini
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.DEEPSEEK_API_KEY) {
       return res.status(500).json({ 
-        error: "Falta GEMINI_API_KEY en las variables de entorno. Agrega tu clave de Google AI Studio en Render." 
+        error: "Falta DEEPSEEK_API_KEY en las variables de entorno." 
       });
     }
 
@@ -200,39 +198,55 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // Inicializar Gemini
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-    // Gemini requiere el Base64 de la imagen SIN el prefijo "data:image/jpeg;base64,"
-    const base64Data = image.split(",")[1];
-    const mimeType = image.match(/data:(image\/[a-zA-Z]+);base64,/)?.[1] || "image/jpeg";
-
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { text: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.` },
-            { inlineData: { mimeType: mimeType, data: base64Data } }
-          ]
-        }
-      ],
-      config: { temperature: 0.7 }
+    // Usamos fetch nativo para controlar EXACTAMENTE el formato que espera DeepSeek
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "deepseek-vl",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.`
+              },
+              {
+                type: "image_url",
+                // 🚨 CORRECCIÓN CLAVE: DeepSeek acepta la URL de la imagen como un string directo, no como un objeto { url: ... }
+                image_url: image
+              }
+            ]
+          }
+        ],
+        max_tokens: 1000
+      })
     });
 
-    const text = response.text;
-    if (!text) throw new Error("Gemini no devolvió texto.");
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Si DeepSeek devuelve un error, lo lanzamos para que el catch lo gestione
+      throw new Error(data.error?.message || `Error ${response.status} de DeepSeek`);
+    }
+
+    const text = data.choices?.[0]?.message?.content?.trim();
+    if (!text) throw new Error("DeepSeek no devolvió texto.");
+    
     return res.json({ text });
 
   } catch (error) {
-    console.error("Vision error (Gemini):", error);
-    if (error.message && error.message.includes("quota")) {
+    console.error("Vision error (DeepSeek):", error);
+    if (error.message && (error.message.includes("quota") || error.message.includes("429"))) {
       return res.status(429).json({
-        error: "Has llegado al límite diario de Gemini. Espera 24 horas o usa tu propia clave de API de Google AI Studio."
+        error: "Has llegado al límite generoso de DeepSeek. La capa gratuita es muy alta, pero si ocurre, espera un minuto y vuelve a intentar."
       });
     }
-    return res.status(500).json({ error: `Error de Gemini: ${error.message || "Ocurrió un fallo."}` });
+    return res.status(500).json({ error: `Error de DeepSeek: ${error.message || "Ocurrió un fallo."}` });
   }
 });
 

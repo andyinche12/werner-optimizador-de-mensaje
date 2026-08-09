@@ -1,0 +1,23 @@
+{
+  "name": "werner Optimizador de mensaje",
+  "short_name": "werner",
+  "description": "Optimiza y responde mensajes con IA.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050a1a",
+  "theme_color": "#28a9ff",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

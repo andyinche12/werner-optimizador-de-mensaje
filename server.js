@@ -94,7 +94,7 @@ function normalizeAnalysis(analysis) {
 }
 
 // ============================================================
-// INSTRUCCIONES PARA DOS MODOS (CON JSON ESTRICTO)
+// INSTRUCCIONES PARA DOS MODOS
 // ============================================================
 const getSystemPrompt = (mode) => {
   const baseInstructions = `
@@ -163,7 +163,7 @@ ${String(message).trim()}
 
     const content = completion.choices?.[0]?.message?.content || "";
     
-    // === 🔥 ESCUDO DE SEGURIDAD: Si la IA se equivoca y no da JSON ===
+    // === ESCUDO DE SEGURIDAD ===
     let parsed;
     let optimizedPrompt;
     let analysis;
@@ -175,8 +175,7 @@ ${String(message).trim()}
       if (!optimizedPrompt) throw new Error("Prompt vacío");
     } catch (error) {
       console.warn("La IA no devolvió JSON válido. Usando mensaje de respaldo.");
-      // Si falla, devolvemos un mensaje amigable y puntuación 0, SIN ERROR ROJO
-      optimizedPrompt = "Lo siento, no entendí el mensaje o la IA tuvo problemas. Por favor, intenta de nuevo con un mensaje más claro.";
+      optimizedPrompt = "Lo siento, no entendí el mensaje. Por favor, intenta de nuevo con un mensaje más claro.";
       analysis = { score: 0, objective: 0, context: 0, instructions: 0, format: 0, constraints: 0 };
     }
 

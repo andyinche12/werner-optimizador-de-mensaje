@@ -40,7 +40,7 @@ function friendlyGroqError(error) {
   return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
-function normalizeOptimizedPrompt(value) {
+function normalizeOutput(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
   if (typeof value === "object") {
@@ -94,54 +94,58 @@ function normalizeAnalysis(analysis) {
 }
 
 // ============================================================
-// NUEVO SISTEMA: ASISTENTE DE RESPUESTAS + OPTIMIZADOR
+// INSTRUCCIONES PARA DOS MODOS
 // ============================================================
-const assistantSystemPrompt = `
-Eres un experto en comunicación y redacción de respuestas. Tu tarea principal es generar respuestas perfectas a los mensajes que el usuario recibe de otras personas.
-El usuario te dará el mensaje que alguien le ha enviado, y tú deberás escribir una respuesta adecuada en español.
-No inventes información de quien envía el mensaje, solo responde al contenido del mismo.
-
-REGLAS DE COMBINACIÓN DE ESTILO Y TONO (MUY IMPORTANTE):
-El usuario elegirá un ESTILO y un TONO. Debes aplicar AMBOS al mismo tiempo.
-- El ESTILO define la estructura y la formalidad (Auto, Formal, Creativo, Técnico).
-- El TONO define las palabras, la actitud y la emoción (Auto, Rápido, Formal, Cariñoso, Coqueto).
-
-🚨 REGLAS DE CALIDEZ Y EMOJIS:
-Si el TONO es "Cariñoso" o "Coqueto":
-- El texto debe sonar HUMANO, natural y cercano. NO escribas frases poéticas, dramáticas o de novela antigua.
-- Usa emojis modernos (❤️, 😊, ✨, 🌸, 😉, 😏, 😜) para dar calidez.
-
-Si el mensaje del usuario es un prompt de trabajo (para mejorar una instrucción de IA), también puedes optimizarlo. Pero prioriza generar una respuesta directa al mensaje entrante.
-
-Analiza cinco dimensiones de 0 a 100 del mensaje original (objective, context, instructions, format, constraints).
-El score debe ser el promedio matemático de estas cinco métricas.
-La respuesta generada debe ser TEXTO PLANO, no un objeto.
-Responde EXCLUSIVAMENTE con JSON5 válido, sin texto extra.
-Estructura obligatoria: { optimizedPrompt: "...", analysis: { objective: 0, context: 0, instructions: 0, format: 0, constraints: 0, score: 0 } }
+const getSystemPrompt = (mode) => {
+  if (mode === 'reply') {
+    return `
+Eres un experto en comunicación interpersonal y redacción de respuestas.
+El usuario te dará un mensaje que alguien le ha enviado. Tu tarea es generar una respuesta PERFECTA para ese mensaje.
+Debes responder de manera natural, sin inventar información que no esté en el mensaje original.
+La respuesta final debe ser un TEXTO LISTO PARA ENVIAR.
 `;
+  } else {
+    return `
+Eres un experto en ingeniería de prompts y redacción creativa.
+El usuario te dará un mensaje que QUIERE ENVIAR o una idea que quiere mejorar. Tu tarea es reescribir y optimizar ese mensaje para que suene mejor, más claro y profesional.
+Mejora la redacción, corrige la gramática y haz que el mensaje cumpla su objetivo.
+La respuesta final debe ser el MENSAJE MEJORADO listo para copiar.
+`;
+  }
+};
 
 app.post("/api/optimize", async (req, res) => {
   try {
-    const { message, style = "Auto", tone = "Auto", detail = "Equilibrado" } = req.body || {};
+    // 🆕 Recibimos el 'mode' para saber qué está haciendo el usuario
+    const { message, style = "Auto", tone = "Auto", detail = "Equilibrado", mode = "reply" } = req.body || {};
     if (!message || !String(message).trim()) {
-      return res.status(400).json({ error: "Escribe un mensaje o prompt." });
+      return res.status(400).json({ error: "Escribe un mensaje." });
     }
 
     const textToneInstructions = {
       "Auto": "Elige el tono más natural y acorde al mensaje.",
       "Rápido": "Sé directo, conciso y ve al grano. Sin rodeos.",
       "Formal": "Usa un lenguaje profesional, respetuoso y estructurado.",
-      "Cariñoso": "Escribe con mucha calidez, empatía y cercanía. Utiliza emojis de cariño (❤️, 😊, 🌸, ✨). El tono debe ser como el de un amigo muy querido.",
-      "Coqueto": "Escribe con un tono juguetón, divertido, pícaro y moderno. Utiliza emojis coquetos (😉, 😏, 😜, ✨). No suenes anticuado, sé natural y simpático."
+      "Cariñoso": "Escribe con mucha calidez, empatía y cercanía. Utiliza emojis (❤️, 😊, 🌸, ✨).",
+      "Coqueto": "Escribe con un tono juguetón, divertido y moderno. Utiliza emojis (😉, 😏, 😜, ✨)."
     };
 
-    const userPrompt = `Estilo: ${style}\nTono: ${tone}\nInstrucciones de tono: ${textToneInstructions[tone] || textToneInstructions["Auto"]}\nDetalle: ${detail}\n\nMensaje recibido (o prompt):\n${String(message).trim()}`;
+    const userPrompt = `
+Modo: ${mode === 'reply' ? 'Responder a un mensaje recibido' : 'Mejorar mi mensaje'}
+Estilo: ${style}
+Tono: ${tone}
+Instrucciones de tono: ${textToneInstructions[tone] || textToneInstructions["Auto"]}
+Detalle: ${detail}
+
+CONTENIDO:
+${String(message).trim()}
+`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       messages: [
-        { role: "system", content: assistantSystemPrompt },
+        { role: "system", content: getSystemPrompt(mode) },
         { role: "user", content: userPrompt }
       ]
     });
@@ -149,7 +153,7 @@ app.post("/api/optimize", async (req, res) => {
     const content = completion.choices?.[0]?.message?.content || "";
     const parsed = extractJson(content);
     const analysis = normalizeAnalysis(parsed.analysis || {});
-    const optimizedPrompt = normalizeOptimizedPrompt(parsed.optimizedPrompt);
+    const optimizedPrompt = normalizeOutput(parsed.optimizedPrompt);
 
     if (!optimizedPrompt) throw new Error("La IA no generó una respuesta válida.");
     return res.json({ optimizedPrompt, analysis });

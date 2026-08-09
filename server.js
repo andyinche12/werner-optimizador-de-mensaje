@@ -13,6 +13,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Verificaciones de API Keys
 if (!process.env.GROQ_API_KEY) {
   console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
   process.exit(1);
@@ -22,6 +23,7 @@ if (!process.env.DEEPSEEK_API_KEY) {
   process.exit(1);
 }
 
+// Cliente para el Optimizador de Texto (Groq)
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
   timeout: 60000,
@@ -31,6 +33,9 @@ const groq = new Groq({
 app.use(express.json({ limit: "15mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// ---------------------------------------------------------
+// 1. MANEJO DE ERRORES
+// ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
@@ -51,6 +56,9 @@ function friendlyGroqError(error) {
   return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
+// ---------------------------------------------------------
+// 2. FUNCIONES AUXILIARES DE PARSEO (TEXTO)
+// ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
@@ -104,6 +112,9 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
+// ---------------------------------------------------------
+// 3. OPTIMIZADOR DE PROMPTS (GROQ)
+// ---------------------------------------------------------
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
 
@@ -165,7 +176,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK - FORMATO CORRECTO)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK - FETCH NATIVO Y FORMATO CORRECTO)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -206,7 +217,7 @@ app.post("/api/vision", async (req, res) => {
               },
               {
                 type: "image_url",
-                // ✅ Estructura correcta de JSON que DeepSeek espera
+                // ✅ DeepSeek exige: image_url: { url: "data:..." }
                 image_url: { url: image }
               }
             ]
@@ -238,6 +249,9 @@ app.post("/api/vision", async (req, res) => {
   }
 });
 
+// ---------------------------------------------------------
+// 5. SERVIDOR ESTÁTICO
+// ---------------------------------------------------------
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

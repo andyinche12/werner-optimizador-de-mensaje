@@ -165,7 +165,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2 - ¡CON EL FORMATO CORRECTO!)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2 - FORMATO MARKDOWN FINAL)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -181,9 +181,9 @@ app.post("/api/vision", async (req, res) => {
     }
 
     // 🛡️ LÍMITE ESTRICTO DE TAMAÑO DE IMAGEN
-    if (image.length > 400000) { // Aprox 290KB en archivo real
+    if (image.length > 400000) {
       return res.status(400).json({
-        error: "❌ La imagen es demasiado grande. Por seguridad, reduce su tamaño (baja calidad o recorta). El sistema la redimensionará automáticamente en la próxima versión."
+        error: "❌ La imagen es demasiado grande. Redúcela antes de subirla."
       });
     }
 
@@ -194,22 +194,13 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // 🔥 CORRECCIÓN DEFINITIVA: DeepSeek-VL2 exige un objeto con la propiedad "url".
+    // 🔥 SOLUCIÓN DEFINITIVA: DeepSeek-VL2 acepta la imagen como MARKDOWN dentro del texto.
     const payload = {
       model: "deepseek-vl2",
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.`
-            },
-            {
-              type: "image_url",
-              image_url: { url: image } // ✅ ESTA ES LA ÚNICA FORMA QUE ACEPTA DEEPSEEK.
-            }
-          ]
+          content: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones de tono: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\n![image](${image})`
         }
       ],
       max_tokens: 1000

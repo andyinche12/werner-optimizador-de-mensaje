@@ -17,10 +17,6 @@ if (!process.env.GROQ_API_KEY) {
   console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
   process.exit(1);
 }
-if (!process.env.DEEPSEEK_API_KEY) {
-  console.error("❌ ERROR: Falta DEEPSEEK_API_KEY en el archivo .env");
-  process.exit(1);
-}
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -28,25 +24,18 @@ const groq = new Groq({
   maxRetries: 3
 });
 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
-  const errorCode = error?.error?.code || "";
 
-  if (errorCode === "model_not_found" || errorCode === "model_decommissioned" || message.includes("does not exist")) {
-    return `El modelo de IA seleccionado no está disponible o fue descontinuado.`;
-  }
   if (status === 429 || message.includes("rate limit") || message.includes("quota")) {
     return "Límite de peticiones excedido. Espera unos minutos y vuelve a intentarlo.";
   }
   if (error?.code === "ETIMEDOUT" || error?.code === "ECONNABORTED" || message.includes("timeout")) {
     return "La solicitud tardó demasiado. Revisa tu conexión a internet.";
-  }
-  if (error?.code === "ENOTFOUND" || error?.code === "ECONNRESET" || message.includes("network")) {
-    return "No se pudo conectar con la IA. Revisa tu conexión.";
   }
   return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
@@ -122,7 +111,6 @@ Analiza cinco dimensiones de 0 a 100 (objective, context, instructions, format, 
 El score debe ser el promedio matemático de estas cinco métricas.
 optimizedPrompt debe ser TEXTO PLANO, no un objeto.
 Responde EXCLUSIVAMENTE con JSON5 válido, sin texto extra.
-Estructura obligatoria: { optimizedPrompt: "...", analysis: { objective: 0, context: 0, instructions: 0, format: 0, constraints: 0, score: 0 } }
 `;
 
 app.post("/api/optimize", async (req, res) => {
@@ -164,83 +152,10 @@ app.post("/api/optimize", async (req, res) => {
   }
 });
 
-// ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2 - FORMATO MARKDOWN FINAL)
-// ---------------------------------------------------------
-app.post("/api/vision", async (req, res) => {
-  try {
-    const { image, tone = "Rápido" } = req.body || {};
-    if (!image || typeof image !== "string") {
-      return res.status(400).json({ error: "Debes subir una imagen." });
-    }
-
-    if (!process.env.DEEPSEEK_API_KEY) {
-      return res.status(500).json({ 
-        error: "Falta DEEPSEEK_API_KEY en las variables de entorno." 
-      });
-    }
-
-    // 🛡️ LÍMITE ESTRICTO DE TAMAÑO DE IMAGEN
-    if (image.length > 400000) {
-      return res.status(400).json({
-        error: "❌ La imagen es demasiado grande. Redúcela antes de subirla."
-      });
-    }
-
-    const toneInstructions = {
-      "Rápido": "Sé directo, conciso y ve al grano.",
-      "Formal": "Responde de forma profesional, clara y estructurada.",
-      "Cariñoso": "Responde con calidez, empatía y mucho cariño. Usa emojis (❤️, 😊).",
-      "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
-    };
-
-    // 🔥 SOLUCIÓN DEFINITIVA: DeepSeek-VL2 acepta la imagen como MARKDOWN dentro del texto.
-    const payload = {
-      model: "deepseek-vl2",
-      messages: [
-        {
-          role: "user",
-          content: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones de tono: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\n![image](${image})`
-        }
-      ],
-      max_tokens: 1000
-    };
-
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || `Error ${response.status} de DeepSeek`);
-    }
-
-    const text = data.choices?.[0]?.message?.content?.trim();
-    if (!text) throw new Error("DeepSeek no devolvió texto.");
-    
-    return res.json({ text });
-
-  } catch (error) {
-    console.error("Vision error (DeepSeek):", error);
-    if (error.message && (error.message.includes("quota") || error.message.includes("429"))) {
-      return res.status(429).json({
-        error: "Has llegado al límite generoso de DeepSeek. Espera un minuto y vuelve a intentarlo."
-      });
-    }
-    return res.status(500).json({ error: `Error de DeepSeek: ${error.message || "Ocurrió un fallo."}` });
-  }
-});
-
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Werner Optimizador de Mensaje corriendo en http://localhost:${PORT}`);
+  console.log(`✅ werner Optimizador de Mensaje ejecutándose en http://localhost:${PORT}`);
 });

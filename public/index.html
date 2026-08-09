@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
   <title>werner — Optimizador de mensaje</title>
-  <!-- El CSS es el mismo que tenías, lo mantengo igual -->
   <style>
     :root {
       --bg: #050a1a;
@@ -27,7 +26,7 @@
       background: linear-gradient(145deg, #03050f, #08142e 60%, #020611);
       padding: 0 12px 30px;
     }
-    .wrap { max-width: 1200px; margin: 0 auto; }
+    .wrap { max-width: 700px; margin: 0 auto; }
     header { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; flex-wrap: wrap; gap: 12px; }
     .brand { display: flex; align-items: center; gap: 14px; }
     .logo-img { width: 48px; height: 48px; border-radius: 14px; object-fit: cover; box-shadow: 0 0 30px rgba(40,169,255,0.3); }
@@ -35,9 +34,16 @@
     h1 span { color: var(--cyan); }
     .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
     .status { font-size: 12px; color: #a7eaff; border: 1px solid rgba(94,231,255,0.2); background: rgba(94,231,255,0.06); border-radius: 50px; padding: 6px 14px; }
-    
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .card { background: linear-gradient(145deg, var(--panel), var(--panel2)); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; backdrop-filter: blur(12px); box-shadow: var(--shadow); transition: 0.2s; }
+
+    .card {
+      background: linear-gradient(145deg, var(--panel), var(--panel2));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      transition: 0.2s;
+    }
     .card:hover { border-color: rgba(71, 160, 255, 0.35); }
     .title-row { display: flex; justify-content: space-between; margin-bottom: 16px; }
     h2 { font-size: 19px; font-weight: 600; }
@@ -76,18 +82,10 @@
     .score { margin-top: 12px; padding: 12px; border-radius: 12px; text-align: center; background: linear-gradient(90deg, rgba(40,169,255,0.08), rgba(123,97,255,0.1)); border: 1px solid rgba(94,231,255,0.1); }
     .score strong { color: #fff; font-size: 22px; }
 
-    .drop { border: 2px dashed rgba(94,231,255,0.25); border-radius: 16px; min-height: 160px; display: grid; place-items: center; padding: 14px; text-align: center; background: rgba(2,10,25,0.4); cursor: pointer; transition: 0.2s; }
-    .drop:hover { border-color: rgba(94,231,255,0.5); background: rgba(2,10,25,0.6); }
-    .drop input { display: none; }
-    .drop-icon { font-size: 32px; margin-bottom: 4px; }
-    .preview { display: none; width: 100%; max-height: 280px; object-fit: contain; border-radius: 12px; margin-top: 12px; border: 1px solid rgba(94,231,255,0.1); background: #02050c; }
-    .error { color: #ff9ab0; border-color: rgba(255,102,133,0.2); }
     footer { text-align: center; color: #4a6380; font-size: 11px; margin-top: 30px; border-top: 1px solid rgba(71,160,255,0.05); padding-top: 20px; }
 
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
     @media (max-width: 560px) { 
-      .controls, .metrics { grid-template-columns: 1fr; } 
-      .metric:last-child { grid-column: auto; }
+      .controls { grid-template-columns: 1fr; } 
       .card { padding: 16px; } 
       .logo-img { width: 40px; height: 40px; }
     }
@@ -100,82 +98,57 @@
         <img src="/logo.png" alt="Logo werner" class="logo-img" onerror="this.style.display='none'">
         <div>
           <h1>werner <span>Optimizador de mensaje</span></h1>
-          <div class="sub">Ingeniería de prompts + visión asistida por IA</div>
+          <div class="sub">Potencia tus indicaciones con inteligencia artificial.</div>
         </div>
       </div>
       <div class="status">● GROQ AI READY</div>
     </header>
 
-    <section class="grid">
-      <article class="card">
-        <div class="title-row"><h2>⚡ Optimizador</h2></div>
-        <label>MENSAJE</label>
-        <textarea id="message" placeholder="Escribe el prompt a mejorar..."></textarea>
-        <div class="controls">
-          <div>
-            <label for="style">ESTILO</label>
-            <select id="style">
-              <option>Auto</option>
-              <option>Formal</option>
-              <option>Creativo</option>
-              <option>Técnico</option>
-            </select>
-          </div>
-          <div>
-            <label for="optTone">TONO</label>
-            <select id="optTone">
-              <option>Auto</option>
-              <option>Rápido</option>
-              <option>Formal</option>
-              <option>Cariñoso</option>
-              <option>Coqueto</option>
-            </select>
-          </div>
-          <div>
-            <label for="detail">DETALLE</label>
-            <select id="detail">
-              <option>Resumido</option>
-              <option selected>Equilibrado</option>
-              <option>Detallado</option>
-            </select>
-          </div>
+    <article class="card">
+      <div class="title-row"><h2>⚡ Optimizador</h2></div>
+      <label>MENSAJE</label>
+      <textarea id="message" placeholder="Escribe el prompt a mejorar..."></textarea>
+      <div class="controls">
+        <div>
+          <label for="style">ESTILO</label>
+          <select id="style">
+            <option>Auto</option>
+            <option>Formal</option>
+            <option>Creativo</option>
+            <option>Técnico</option>
+          </select>
         </div>
-        <button id="optimizeBtn" class="primary">✨ Optimizar</button>
-        <div class="output-head"><strong>RESULTADO</strong><button id="copyPrompt" class="secondary mini">📋 Copiar</button></div>
-        <div id="promptOutput" class="output">Esperando tu mensaje...</div>
-        <div class="metrics" id="metrics">
-          <div class="metric"><b>—</b><span>Objetivo</span></div>
-          <div class="metric"><b>—</b><span>Contexto</span></div>
-          <div class="metric"><b>—</b><span>Instrucciones</span></div>
-          <div class="metric"><b>—</b><span>Formato</span></div>
-          <div class="metric"><b>—</b><span>Restricciones</span></div>
+        <div>
+          <label for="optTone">TONO</label>
+          <select id="optTone">
+            <option>Auto</option>
+            <option>Rápido</option>
+            <option>Formal</option>
+            <option>Cariñoso</option>
+            <option>Coqueto</option>
+          </select>
         </div>
-        <div class="score">Score: <strong id="score">—</strong> / 100</div>
-      </article>
-
-      <article class="card">
-        <div class="title-row"><h2>👁️ Visión</h2></div>
-        <label class="drop" for="imageInput">
-          <input id="imageInput" type="file" accept="image/*">
-          <div><div class="drop-icon">🖼️</div><strong>Sube una captura</strong><small>PNG, JPG, WEBP</small></div>
-        </label>
-        <img id="preview" class="preview">
-        <div class="controls">
-          <div>
-            <label for="tone">TONO</label>
-            <select id="tone">
-              <option>Rápido</option>
-              <option>Formal</option>
-              <option>Cariñoso</option>
-              <option>Coqueto</option>
-            </select>
-          </div>
-          <div style="display:flex;align-items:end;"><button id="visionBtn" class="primary" style="margin-top:0;">🔍 Analizar</button></div>
+        <div>
+          <label for="detail">DETALLE</label>
+          <select id="detail">
+            <option>Resumido</option>
+            <option selected>Equilibrado</option>
+            <option>Detallado</option>
+          </select>
         </div>
-        <div class="output-head"><strong>RESPUESTA</strong><button id="copyVision" class="secondary mini">📋 Copiar</button></div>
-        <div id="visionOutput" class="output">Sube una imagen para comenzar.</div>
-      </article>
-    </section>
+      </div>
+      <button id="optimizeBtn" class="primary">✨ Optimizar</button>
+      <div class="output-head"><strong>RESULTADO</strong><button id="copyPrompt" class="secondary mini">📋 Copiar</button></div>
+      <div id="promptOutput" class="output">Esperando tu mensaje...</div>
+      <div class="metrics" id="metrics">
+        <div class="metric"><b>—</b><span>Objetivo</span></div>
+        <div class="metric"><b>—</b><span>Contexto</span></div>
+        <div class="metric"><b>—</b><span>Instrucciones</span></div>
+        <div class="metric"><b>—</b><span>Formato</span></div>
+        <div class="metric"><b>—</b><span>Restricciones</span></div>
+      </div>
+      <div class="score">Score: <strong id="score">—</strong> / 100</div>
+    </article>
 
     <footer>werner Optimizador · Node.js + Groq SDK</footer>
   </main>
@@ -187,7 +160,7 @@
       btn.textContent = load ? text : btn.dataset.original;
     };
     const copyText = async (text, btn) => {
-      if(!text || text.includes("Esperando") || text.includes("Sube")) return;
+      if(!text || text.includes("Esperando")) return;
       await navigator.clipboard.writeText(text);
       const old = btn.textContent; btn.textContent = "✓ Copiado";
       setTimeout(() => btn.textContent = old, 1500);
@@ -220,69 +193,7 @@
       finally { setLoading(btn, false); }
     });
 
-    // ==========================================
-    // 🔥 NUEVA FUNCIÓN DE REDIMENSIONAMIENTO DE IMÁGENES
-    // ==========================================
-    function resizeImage(file, maxWidth, maxHeight, quality, callback) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          if (width > height) {
-            if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
-          } else {
-            if (height > maxHeight) { width = Math.round(width * maxHeight / height); height = maxHeight; }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          // Devuelve un Base64 en JPG con calidad 0.8 (80%)
-          callback(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    let selectedImage = "";
-
-    $("imageInput").addEventListener("change", (event) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      // 🚀 Redimensionamos la imagen antes de guardarla en la variable
-      resizeImage(file, 1024, 1024, 0.8, (resizedBase64) => {
-        selectedImage = resizedBase64;
-        $("preview").src = selectedImage;
-        $("preview").style.display = "block";
-        $("visionOutput").className = "output";
-        $("visionOutput").textContent = "Imagen redimensionada y lista para analizar.";
-      });
-    });
-
-    $("visionBtn").addEventListener("click", async () => {
-      const out = $("visionOutput"), btn = $("visionBtn");
-      if(!selectedImage) { out.className = "output error"; out.textContent = "Selecciona una imagen."; return; }
-      out.className = "output"; out.textContent = "Analizando..."; setLoading(btn, true, "🔍 Analizando...");
-      try {
-        const r = await fetch("/api/vision", { 
-          method: "POST", 
-          headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify({ image: selectedImage, tone: $("tone").value }) 
-        });
-        const d = await r.json();
-        if(!r.ok) throw new Error(d.error);
-        out.textContent = d.text;
-      } catch(e) { out.className = "output error"; out.textContent = e.message; }
-      finally { setLoading(btn, false); }
-    });
-
     $("copyPrompt").addEventListener("click", () => copyText($("promptOutput").textContent, $("copyPrompt")));
-    $("copyVision").addEventListener("click", () => copyText($("visionOutput").textContent, $("copyVision")));
   </script>
 </body>
 </html>

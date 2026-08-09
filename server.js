@@ -13,7 +13,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Verificaciones de API Keys
 if (!process.env.GROQ_API_KEY) {
   console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
   process.exit(1);
@@ -29,12 +28,9 @@ const groq = new Groq({
   maxRetries: 3
 });
 
-app.use(express.json({ limit: "25mb" })); // Aumentamos el límite a 25mb para imágenes grandes
+app.use(express.json({ limit: "25mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ---------------------------------------------------------
-// 1. MANEJO DE ERRORES
-// ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
@@ -55,9 +51,6 @@ function friendlyGroqError(error) {
   return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
-// ---------------------------------------------------------
-// 2. FUNCIONES AUXILIARES DE PARSEO (TEXTO)
-// ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
@@ -111,9 +104,6 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
-// ---------------------------------------------------------
-// 3. OPTIMIZADOR DE PROMPTS (GROQ)
-// ---------------------------------------------------------
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
 
@@ -175,7 +165,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK CON FETCH - VERSIÓN VL2)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2 - FORMATO OPENAI ESTRICTO)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -190,8 +180,7 @@ app.post("/api/vision", async (req, res) => {
       });
     }
 
-    // 🛡️ Protección contra imágenes demasiado grandes
-    if (image.length > 1000000) { // Aprox 1.3MB en Base64
+    if (image.length > 1000000) {
       return res.status(400).json({
         error: "La imagen es demasiado grande. Intenta reducir su tamaño o calidad antes de subirla (debe pesar menos de 1MB)."
       });
@@ -204,9 +193,9 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // 🔥 ACTUALIZACIÓN: Cambio a modelo 'deepseek-vl2' y limpieza estricta del JSON
+    // 🔥 CORRECCIÓN ABSOLUTA: DeepSeek exige { url: "..." } estrictamente.
     const payload = {
-      model: "deepseek-vl2", // El modelo de visión más reciente y estable de DeepSeek
+      model: "deepseek-vl2",
       messages: [
         {
           role: "user",
@@ -217,7 +206,8 @@ app.post("/api/vision", async (req, res) => {
             },
             {
               type: "image_url",
-              image_url: image // DeepSeek requiere el string directo.
+              // ✅ Aquí está la clave: debe ser un OBJETO con una propiedad 'url'
+              image_url: { url: image }
             }
           ]
         }
@@ -256,9 +246,6 @@ app.post("/api/vision", async (req, res) => {
   }
 });
 
-// ---------------------------------------------------------
-// 5. SERVIDOR ESTÁTICO
-// ---------------------------------------------------------
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

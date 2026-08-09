@@ -4,6 +4,8 @@ import Groq from "groq-sdk";
 import JSON5 from "json5";
 import path from "path";
 import { fileURLToPath } from "url";
+// 🚀 USAMOS EL SDK DE OPENAI PARA CONECTARNOS A DEEPSEEK
+import OpenAI from "openai";
 
 dotenv.config();
 
@@ -28,6 +30,12 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
   timeout: 60000,
   maxRetries: 3
+});
+
+// Cliente para el Asistente de Visión (DeepSeek usando el SDK de OpenAI)
+const deepseek = new OpenAI({
+  baseURL: 'https://api.deepseek.com/v1',
+  apiKey: process.env.DEEPSEEK_API_KEY
 });
 
 app.use(express.json({ limit: "15mb" }));
@@ -176,7 +184,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK - FETCH NATIVO Y FORMATO CORRECTO)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK CON SDK DE OPENAI)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -198,42 +206,28 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // 🔥 CORRECCIÓN DEFINITIVA: image_url debe ser un objeto { url: ... }
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "deepseek-vl",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.`
-              },
-              {
-                type: "image_url",
-                // ✅ DeepSeek exige: image_url: { url: "data:..." }
-                image_url: { url: image }
-              }
-            ]
-          }
-        ],
-        max_tokens: 1000
-      })
+    // 🚀 USAMOS EL SDK DE OPENAI PARA LA LLAMADA, EL SDK MANEJA EL FORMATO PERFECTO
+    const response = await deepseek.chat.completions.create({
+      model: "deepseek-vl",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { 
+              type: "text", 
+              text: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.`
+            },
+            { 
+              type: "image_url", 
+              image_url: { url: image } 
+            }
+          ]
+        }
+      ],
+      max_tokens: 1000
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || `Error ${response.status} de DeepSeek`);
-    }
-
-    const text = data.choices?.[0]?.message?.content?.trim();
+    const text = response.choices?.[0]?.message?.content?.trim();
     if (!text) throw new Error("DeepSeek no devolvió texto.");
     
     return res.json({ text });

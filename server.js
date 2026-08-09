@@ -28,7 +28,7 @@ const groq = new Groq({
   maxRetries: 3
 });
 
-app.use(express.json({ limit: "25mb" }));
+app.use(express.json({ limit: "10mb" })); // Límite reducido a 10MB para payloads
 app.use(express.static(path.join(__dirname, "public")));
 
 function friendlyGroqError(error) {
@@ -165,7 +165,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2 - FORMATO OPENAI ESTRICTO)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK-VL2)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -180,9 +180,10 @@ app.post("/api/vision", async (req, res) => {
       });
     }
 
-    if (image.length > 1000000) {
+    // 🛡️ LÍMITE ESTRICTO DE TAMAÑO DE IMAGEN
+    if (image.length > 400000) { // Aprox 290KB en archivo real
       return res.status(400).json({
-        error: "La imagen es demasiado grande. Intenta reducir su tamaño o calidad antes de subirla (debe pesar menos de 1MB)."
+        error: "❌ La imagen es demasiado grande. Por seguridad, reduce su tamaño (baja calidad o recorta). El sistema la redimensionará automáticamente en la próxima versión."
       });
     }
 
@@ -193,7 +194,7 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // 🔥 CORRECCIÓN ABSOLUTA: DeepSeek exige { url: "..." } estrictamente.
+    // Usamos fetch nativo para controlar el payload
     const payload = {
       model: "deepseek-vl2",
       messages: [
@@ -206,8 +207,7 @@ app.post("/api/vision", async (req, res) => {
             },
             {
               type: "image_url",
-              // ✅ Aquí está la clave: debe ser un OBJETO con una propiedad 'url'
-              image_url: { url: image }
+              image_url: { url: image } // ✅ Formato estándar OpenAI que DeepSeek espera
             }
           ]
         }

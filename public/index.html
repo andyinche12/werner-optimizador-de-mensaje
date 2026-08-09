@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
   <title>werner — Optimizador de mensaje</title>
-  <meta name="description" content="Optimizador de prompts y asistente de visión con IA.">
+  <!-- El CSS es el mismo que tenías, lo mantengo igual -->
   <style>
     :root {
       --bg: #050a1a;
@@ -52,8 +52,6 @@
     textarea { min-height: 160px; resize: vertical; line-height: 1.6; }
     textarea:focus, select:focus { border-color: rgba(94,231,255,0.6); box-shadow: 0 0 0 4px rgba(94,231,255,0.08); }
     select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ea7c5' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
-    
-    /* CAMBIO: 3 columnas para albergar el Estilo, Tono y Detalle */
     .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
 
     button {
@@ -88,7 +86,6 @@
 
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
     @media (max-width: 560px) { 
-      /* En móvil, los controles pasan a una sola columna */
       .controls, .metrics { grid-template-columns: 1fr; } 
       .metric:last-child { grid-column: auto; }
       .card { padding: 16px; } 
@@ -110,12 +107,10 @@
     </header>
 
     <section class="grid">
-      <!-- ==================== OPTIMIZADOR ==================== -->
       <article class="card">
         <div class="title-row"><h2>⚡ Optimizador</h2></div>
         <label>MENSAJE</label>
         <textarea id="message" placeholder="Escribe el prompt a mejorar..."></textarea>
-        
         <div class="controls">
           <div>
             <label for="style">ESTILO</label>
@@ -126,7 +121,6 @@
               <option>Técnico</option>
             </select>
           </div>
-          <!-- 👇 NUEVO: Selector de TONO para el Optimizador -->
           <div>
             <label for="optTone">TONO</label>
             <select id="optTone">
@@ -146,9 +140,7 @@
             </select>
           </div>
         </div>
-
         <button id="optimizeBtn" class="primary">✨ Optimizar</button>
-
         <div class="output-head"><strong>RESULTADO</strong><button id="copyPrompt" class="secondary mini">📋 Copiar</button></div>
         <div id="promptOutput" class="output">Esperando tu mensaje...</div>
         <div class="metrics" id="metrics">
@@ -161,7 +153,6 @@
         <div class="score">Score: <strong id="score">—</strong> / 100</div>
       </article>
 
-      <!-- ==================== VISIÓN ==================== -->
       <article class="card">
         <div class="title-row"><h2>👁️ Visión</h2></div>
         <label class="drop" for="imageInput">
@@ -204,9 +195,6 @@
 
     document.querySelectorAll("button[data-original]").forEach(b => b.dataset.original = b.textContent);
 
-    // ==========================================
-    // LÓGICA DEL OPTIMIZADOR (Tono añadido)
-    // ==========================================
     $("optimizeBtn").addEventListener("click", async () => {
       const msg = $("message").value.trim(), out = $("promptOutput"), btn = $("optimizeBtn");
       if(!msg) { out.className = "output error"; out.textContent = "Escribe algo."; return; }
@@ -218,7 +206,7 @@
           body: JSON.stringify({ 
             message: msg, 
             style: $("style").value, 
-            tone: $("optTone").value, // 👈 Enviamos el tono al backend
+            tone: $("optTone").value, 
             detail: $("detail").value 
           }) 
         });
@@ -233,26 +221,58 @@
     });
 
     // ==========================================
-    // LÓGICA DE VISIÓN
+    // 🔥 NUEVA FUNCIÓN DE REDIMENSIONAMIENTO DE IMÁGENES
     // ==========================================
-    let image = "";
-    $("imageInput").addEventListener("change", e => {
-      const file = e.target.files?.[0];
-      if(!file) return;
-      const r = new FileReader();
-      r.onload = () => { image = r.result; $("preview").src = image; $("preview").style.display = "block"; $("visionOutput").className = "output"; $("visionOutput").textContent = "Imagen lista."; };
-      r.readAsDataURL(file);
+    function resizeImage(file, maxWidth, maxHeight, quality, callback) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxWidth) { height = Math.round(height * maxWidth / width); width = maxWidth; }
+          } else {
+            if (height > maxHeight) { width = Math.round(width * maxHeight / height); height = maxHeight; }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          // Devuelve un Base64 en JPG con calidad 0.8 (80%)
+          callback(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    let selectedImage = "";
+
+    $("imageInput").addEventListener("change", (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // 🚀 Redimensionamos la imagen antes de guardarla en la variable
+      resizeImage(file, 1024, 1024, 0.8, (resizedBase64) => {
+        selectedImage = resizedBase64;
+        $("preview").src = selectedImage;
+        $("preview").style.display = "block";
+        $("visionOutput").className = "output";
+        $("visionOutput").textContent = "Imagen redimensionada y lista para analizar.";
+      });
     });
 
     $("visionBtn").addEventListener("click", async () => {
       const out = $("visionOutput"), btn = $("visionBtn");
-      if(!image) { out.className = "output error"; out.textContent = "Selecciona una imagen."; return; }
+      if(!selectedImage) { out.className = "output error"; out.textContent = "Selecciona una imagen."; return; }
       out.className = "output"; out.textContent = "Analizando..."; setLoading(btn, true, "🔍 Analizando...");
       try {
         const r = await fetch("/api/vision", { 
           method: "POST", 
           headers: { "Content-Type": "application/json" }, 
-          body: JSON.stringify({ image, tone: $("tone").value }) 
+          body: JSON.stringify({ image: selectedImage, tone: $("tone").value }) 
         });
         const d = await r.json();
         if(!r.ok) throw new Error(d.error);

@@ -94,40 +94,51 @@ function normalizeAnalysis(analysis) {
 }
 
 // ============================================================
-// INSTRUCCIONES PARA DOS MODOS
+// INSTRUCCIONES PARA DOS MODOS (CON JSON ESTRICTO)
 // ============================================================
 const getSystemPrompt = (mode) => {
+  const baseInstructions = `
+DEBES RESPONDER EXCLUSIVAMENTE CON UN OBJETO JSON VÁLIDO.
+NO escribas absolutamente nada más, ni saludos, ni explicaciones, ni texto fuera del JSON.
+El JSON DEBE tener esta estructura exacta:
+{
+  "optimizedPrompt": "tu respuesta aquí",
+  "analysis": {
+    "score": 0-100,
+    "objective": 0-100,
+    "context": 0-100,
+    "instructions": 0-100,
+    "format": 0-100,
+    "constraints": 0-100
+  }
+}`;
+
   if (mode === 'reply') {
     return `
-Eres un experto en comunicación interpersonal y redacción de respuestas.
-El usuario te dará un mensaje que alguien le ha enviado. Tu tarea es generar una respuesta PERFECTA para ese mensaje.
-Debes responder de manera natural, sin inventar información que no esté en el mensaje original.
-La respuesta final debe ser un TEXTO LISTO PARA ENVIAR.
-`;
+Eres un experto en comunicación y redacción.
+El usuario te dará un mensaje que alguien le envió. Genera una respuesta perfecta para ese mensaje.
+${baseInstructions}`;
   } else {
     return `
-Eres un experto en ingeniería de prompts y redacción creativa.
-El usuario te dará un mensaje que QUIERE ENVIAR o una idea que quiere mejorar. Tu tarea es reescribir y optimizar ese mensaje para que suene mejor, más claro y profesional.
-Mejora la redacción, corrige la gramática y haz que el mensaje cumpla su objetivo.
-La respuesta final debe ser el MENSAJE MEJORADO listo para copiar.
-`;
+Eres un experto en redacción y mejora de textos.
+El usuario te dará un mensaje que quiere enviar. Reescribe y optimiza ese mensaje para que sea mejor.
+${baseInstructions}`;
   }
 };
 
 app.post("/api/optimize", async (req, res) => {
   try {
-    // 🆕 Recibimos el 'mode' para saber qué está haciendo el usuario
     const { message, style = "Auto", tone = "Auto", detail = "Equilibrado", mode = "reply" } = req.body || {};
     if (!message || !String(message).trim()) {
       return res.status(400).json({ error: "Escribe un mensaje." });
     }
 
     const textToneInstructions = {
-      "Auto": "Elige el tono más natural y acorde al mensaje.",
-      "Rápido": "Sé directo, conciso y ve al grano. Sin rodeos.",
-      "Formal": "Usa un lenguaje profesional, respetuoso y estructurado.",
-      "Cariñoso": "Escribe con mucha calidez, empatía y cercanía. Utiliza emojis (❤️, 😊, 🌸, ✨).",
-      "Coqueto": "Escribe con un tono juguetón, divertido y moderno. Utiliza emojis (😉, 😏, 😜, ✨)."
+      "Auto": "Elige el tono más natural.",
+      "Rápido": "Sé directo, conciso y ve al grano.",
+      "Formal": "Lenguaje profesional y estructurado.",
+      "Cariñoso": "Calidez, empatía y emojis (❤️, 😊, 🌸, ✨).",
+      "Coqueto": "Tono juguetón y divertido con emojis (😉, 😏, 😜, ✨)."
     };
 
     const userPrompt = `
@@ -151,11 +162,24 @@ ${String(message).trim()}
     });
 
     const content = completion.choices?.[0]?.message?.content || "";
-    const parsed = extractJson(content);
-    const analysis = normalizeAnalysis(parsed.analysis || {});
-    const optimizedPrompt = normalizeOutput(parsed.optimizedPrompt);
+    
+    // === 🔥 ESCUDO DE SEGURIDAD: Si la IA se equivoca y no da JSON ===
+    let parsed;
+    let optimizedPrompt;
+    let analysis;
 
-    if (!optimizedPrompt) throw new Error("La IA no generó una respuesta válida.");
+    try {
+      parsed = extractJson(content);
+      optimizedPrompt = normalizeOutput(parsed.optimizedPrompt);
+      analysis = normalizeAnalysis(parsed.analysis || {});
+      if (!optimizedPrompt) throw new Error("Prompt vacío");
+    } catch (error) {
+      console.warn("La IA no devolvió JSON válido. Usando mensaje de respaldo.");
+      // Si falla, devolvemos un mensaje amigable y puntuación 0, SIN ERROR ROJO
+      optimizedPrompt = "Lo siento, no entendí el mensaje o la IA tuvo problemas. Por favor, intenta de nuevo con un mensaje más claro.";
+      analysis = { score: 0, objective: 0, context: 0, instructions: 0, format: 0, constraints: 0 };
+    }
+
     return res.json({ optimizedPrompt, analysis });
   } catch (error) {
     console.error("Optimize error:", error);

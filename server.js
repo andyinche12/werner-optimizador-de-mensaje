@@ -29,9 +29,12 @@ const groq = new Groq({
   maxRetries: 3
 });
 
-app.use(express.json({ limit: "15mb" }));
+app.use(express.json({ limit: "25mb" })); // Aumentamos el límite a 25mb para imágenes grandes
 app.use(express.static(path.join(__dirname, "public")));
 
+// ---------------------------------------------------------
+// 1. MANEJO DE ERRORES
+// ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
@@ -52,6 +55,9 @@ function friendlyGroqError(error) {
   return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
+// ---------------------------------------------------------
+// 2. FUNCIONES AUXILIARES DE PARSEO (TEXTO)
+// ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
@@ -105,6 +111,9 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
+// ---------------------------------------------------------
+// 3. OPTIMIZADOR DE PROMPTS (GROQ)
+// ---------------------------------------------------------
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
 
@@ -166,7 +175,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK CON FETCH NATIVO Y FORMATO CORRECTO)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK CON FETCH - VERSIÓN VL2)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -181,6 +190,13 @@ app.post("/api/vision", async (req, res) => {
       });
     }
 
+    // 🛡️ Protección contra imágenes demasiado grandes
+    if (image.length > 1000000) { // Aprox 1.3MB en Base64
+      return res.status(400).json({
+        error: "La imagen es demasiado grande. Intenta reducir su tamaño o calidad antes de subirla (debe pesar menos de 1MB)."
+      });
+    }
+
     const toneInstructions = {
       "Rápido": "Sé directo, conciso y ve al grano.",
       "Formal": "Responde de forma profesional, clara y estructurada.",
@@ -188,11 +204,9 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // 🔥 CORRECCIÓN DEFINITIVA PARA DEEPSEEK:
-    // DeepSeek espera que 'image_url' sea un STRING directo, no un objeto { url: ... }.
-    // Además, al usar fetch nativo, evitamos que el SDK de OpenAI altere el payload.
+    // 🔥 ACTUALIZACIÓN: Cambio a modelo 'deepseek-vl2' y limpieza estricta del JSON
     const payload = {
-      model: "deepseek-vl",
+      model: "deepseek-vl2", // El modelo de visión más reciente y estable de DeepSeek
       messages: [
         {
           role: "user",
@@ -203,7 +217,7 @@ app.post("/api/vision", async (req, res) => {
             },
             {
               type: "image_url",
-              image_url: image // ✅ Clave: Se pasa el string Base64 directamente, sin anidar en un objeto.
+              image_url: image // DeepSeek requiere el string directo.
             }
           ]
         }
@@ -242,6 +256,9 @@ app.post("/api/vision", async (req, res) => {
   }
 });
 
+// ---------------------------------------------------------
+// 5. SERVIDOR ESTÁTICO
+// ---------------------------------------------------------
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

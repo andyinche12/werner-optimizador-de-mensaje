@@ -4,6 +4,8 @@ import Groq from "groq-sdk";
 import JSON5 from "json5";
 import path from "path";
 import { fileURLToPath } from "url";
+// 🚀 AÑADIMOS EL SDK DE GEMINI PARA LA VISIÓN
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -13,11 +15,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Verificaciones de API Keys
 if (!process.env.GROQ_API_KEY) {
   console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
   process.exit(1);
 }
 
+// Cliente para el Optimizador de Texto (Groq)
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
   timeout: 60000,
@@ -27,6 +31,9 @@ const groq = new Groq({
 app.use(express.json({ limit: "15mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// ---------------------------------------------------------
+// 1. MANEJO DE ERRORES
+// ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
@@ -47,6 +54,9 @@ function friendlyGroqError(error) {
   return `Error del servidor de Groq: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
+// ---------------------------------------------------------
+// 2. FUNCIONES AUXILIARES DE PARSEO (TEXTO)
+// ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
@@ -100,9 +110,9 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
-// =======================================================
-// NUEVO SISTEMA DE INSTRUCCIONES (CÁLIDO, CON EMOJIS Y NATURAL)
-// =======================================================
+// ---------------------------------------------------------
+// 3. OPTIMIZADOR DE PROMPTS (GROQ)
+// ---------------------------------------------------------
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
 
@@ -134,7 +144,6 @@ app.post("/api/optimize", async (req, res) => {
       return res.status(400).json({ error: "Escribe un mensaje para optimizar." });
     }
 
-    // 🆕 Instrucciones de tono mejoradas (con emojis y naturalidad)
     const textToneInstructions = {
       "Auto": "Elige el tono más natural y acorde al mensaje.",
       "Rápido": "Sé directo, conciso y ve al grano. Sin rodeos.",
@@ -147,7 +156,7 @@ app.post("/api/optimize", async (req, res) => {
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
-      temperature: 0.7, // Subimos la temperatura a 0.7 para que sea más creativo y cálido, y no tan rígido.
+      temperature: 0.7, // 0.7 para que sea cálido y natural
       messages: [
         { role: "system", content: optimizerSystemPrompt },
         { role: "user", content: userPrompt }
@@ -168,11 +177,8 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. RUTA: ASISTENTE DE VISIÓN
+// 4. ASISTENTE DE VISIÓN (GEMINI - ESTABLE Y GRATUITO)
 // ---------------------------------------------------------
-// ⚠️ RECUERDA ACTUALIZAR ESTO EN TU ENTORNO DE RENDER
-const VISION_MODEL = process.env.GROQ_VISION_MODEL || "llama-3.2-90b-vision-preview"; // Cambiado al modelo más pesado y estable actual
-
 app.post("/api/vision", async (req, res) => {
   try {
     const { image, tone = "Rápido" } = req.body || {};
@@ -180,45 +186,59 @@ app.post("/api/vision", async (req, res) => {
       return res.status(400).json({ error: "Debes subir una imagen." });
     }
 
-    const toneInstructions = {
-      "Rápido": "Sé directo y breve.",
-      "Formal": "Responde de forma profesional, clara y estructurada.",
-      "Cariñoso": "Responde con calidez y empatía.",
-      "Coqueto": "Usa un tono juguetón y ligeramente coqueto."
-    };
-
-    const completion = await groq.chat.completions.create({
-      model: VISION_MODEL,
-      temperature: 0.45,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Analiza esta imagen y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.`
-            },
-            { type: "image_url", image_url: { url: image } }
-          ]
-        }
-      ]
-    });
-
-    const text = completion.choices?.[0]?.message?.content?.trim();
-    if (!text) throw new Error("La IA no devolvió texto.");
-    return res.json({ text });
-  } catch (error) {
-    console.error("Vision error details:", JSON.stringify(error, null, 2));
-    const message = String(error?.message || "").toLowerCase();
-    if (error?.error?.code === "model_not_found" || error?.error?.code === "model_decommissioned" || message.includes("does not exist")) {
-      return res.status(400).json({
-        error: `El modelo '${VISION_MODEL}' fue descontinuado por Groq. Ve a https://console.groq.com/docs/models, busca el nuevo nombre del modelo de visión y actualiza la variable GROQ_VISION_MODEL en tu panel de entorno de Render, luego reinicia el servicio.`
+    // Verificar la API Key de Gemini
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ 
+        error: "Falta GEMINI_API_KEY en las variables de entorno. Agrega tu clave de Google AI Studio en Render." 
       });
     }
-    return res.status(500).json({ error: friendlyGroqError(error) });
+
+    const toneInstructions = {
+      "Rápido": "Sé directo, conciso y ve al grano.",
+      "Formal": "Responde de forma profesional, clara y estructurada.",
+      "Cariñoso": "Responde con calidez, empatía y mucho cariño. Usa emojis (❤️, 😊).",
+      "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
+    };
+
+    // Inicializar Gemini
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+    // Gemini requiere el Base64 de la imagen SIN el prefijo "data:image/jpeg;base64,"
+    const base64Data = image.split(",")[1];
+    const mimeType = image.match(/data:(image\/[a-zA-Z]+);base64,/)?.[1] || "image/jpeg";
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.` },
+            { inlineData: { mimeType: mimeType, data: base64Data } }
+          ]
+        }
+      ],
+      config: { temperature: 0.7 }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("Gemini no devolvió texto.");
+    return res.json({ text });
+
+  } catch (error) {
+    console.error("Vision error (Gemini):", error);
+    if (error.message && error.message.includes("quota")) {
+      return res.status(429).json({
+        error: "Has llegado al límite diario de Gemini. Espera 24 horas o usa tu propia clave de API de Google AI Studio."
+      });
+    }
+    return res.status(500).json({ error: `Error de Gemini: ${error.message || "Ocurrió un fallo."}` });
   }
 });
 
+// ---------------------------------------------------------
+// 5. SERVIDOR ESTÁTICO
+// ---------------------------------------------------------
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

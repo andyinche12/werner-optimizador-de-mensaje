@@ -13,7 +13,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Verificaciones de API Keys
 if (!process.env.GROQ_API_KEY) {
   console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
   process.exit(1);
@@ -23,7 +22,6 @@ if (!process.env.DEEPSEEK_API_KEY) {
   process.exit(1);
 }
 
-// Cliente para el Optimizador de Texto (Groq)
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
   timeout: 60000,
@@ -33,9 +31,6 @@ const groq = new Groq({
 app.use(express.json({ limit: "15mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ---------------------------------------------------------
-// 1. MANEJO DE ERRORES
-// ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
@@ -56,9 +51,6 @@ function friendlyGroqError(error) {
   return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
-// ---------------------------------------------------------
-// 2. FUNCIONES AUXILIARES DE PARSEO (TEXTO)
-// ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
@@ -112,9 +104,6 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
-// ---------------------------------------------------------
-// 3. OPTIMIZADOR DE PROMPTS (GROQ)
-// ---------------------------------------------------------
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
 
@@ -176,7 +165,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK - CORREGIDO CON FETCH)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK - FORMATO CORRECTO)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -198,7 +187,7 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // Usamos fetch nativo para controlar EXACTAMENTE el formato que espera DeepSeek
+    // 🔥 CORRECCIÓN DEFINITIVA: image_url debe ser un objeto { url: ... }
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -217,8 +206,8 @@ app.post("/api/vision", async (req, res) => {
               },
               {
                 type: "image_url",
-                // 🚨 CORRECCIÓN CLAVE: DeepSeek acepta la URL de la imagen como un string directo, no como un objeto { url: ... }
-                image_url: image
+                // ✅ Estructura correcta de JSON que DeepSeek espera
+                image_url: { url: image }
               }
             ]
           }
@@ -230,7 +219,6 @@ app.post("/api/vision", async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      // Si DeepSeek devuelve un error, lo lanzamos para que el catch lo gestione
       throw new Error(data.error?.message || `Error ${response.status} de DeepSeek`);
     }
 
@@ -243,16 +231,13 @@ app.post("/api/vision", async (req, res) => {
     console.error("Vision error (DeepSeek):", error);
     if (error.message && (error.message.includes("quota") || error.message.includes("429"))) {
       return res.status(429).json({
-        error: "Has llegado al límite generoso de DeepSeek. La capa gratuita es muy alta, pero si ocurre, espera un minuto y vuelve a intentar."
+        error: "Has llegado al límite generoso de DeepSeek. Espera un minuto y vuelve a intentarlo."
       });
     }
     return res.status(500).json({ error: `Error de DeepSeek: ${error.message || "Ocurrió un fallo."}` });
   }
 });
 
-// ---------------------------------------------------------
-// 5. SERVIDOR ESTÁTICO
-// ---------------------------------------------------------
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

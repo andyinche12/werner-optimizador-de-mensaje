@@ -27,9 +27,6 @@ const groq = new Groq({
 app.use(express.json({ limit: "15mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ---------------------------------------------------------
-// 1. MANEJO DE ERRORES (Ahora muestra el error real de Groq)
-// ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
@@ -47,14 +44,9 @@ function friendlyGroqError(error) {
   if (error?.code === "ENOTFOUND" || error?.code === "ECONNRESET" || message.includes("network")) {
     return "No se pudo conectar con la IA. Revisa tu conexión.";
   }
-  
-  // 🔥 CAMBIO CLAVE: Devuelve el mensaje real de Groq para saber qué está fallando
   return `Error del servidor de Groq: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
-// ---------------------------------------------------------
-// 2. FUNCIONES AUXILIARES DE PARSEO
-// ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
@@ -108,9 +100,9 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
-// ---------------------------------------------------------
-// 3. RUTA: OPTIMIZADOR DE PROMPTS (Con instrucciones de combinación)
-// ---------------------------------------------------------
+// =======================================================
+// NUEVO SISTEMA DE INSTRUCCIONES (CÁLIDO, CON EMOJIS Y NATURAL)
+// =======================================================
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
 
@@ -119,9 +111,14 @@ El usuario elegirá un ESTILO y un TONO. Debes aplicar AMBOS al mismo tiempo.
 - El ESTILO define la estructura y el formato (Auto, Formal, Creativo, Técnico).
 - El TONO define las palabras, la actitud y la emoción (Auto, Rápido, Formal, Cariñoso, Coqueto).
 
-Ejemplo: Si el Estilo es "Formal" y el Tono es "Coqueto", el texto debe tener la estructura y educación de un texto Formal, pero con palabras juguetonas y simpáticas.
-Si el Estilo es "Creativo" y el Tono es "Cariñoso", el texto debe ser imaginativo pero escrito con calidez.
-NUNCA ignores el Tono elegido por el usuario.
+🚨 REGLAS DE CALIDEZ Y EMOJIS:
+Si el TONO es "Cariñoso" o "Coqueto":
+- El texto debe sonar HUMANO, natural y cercano. NO escribas frases poéticas, dramáticas o de novela antigua.
+- Usa emojis modernos (❤️, 😊, ✨, 🌸, 😉, 😏, 😜) para dar calidez.
+- Si el ESTILO es "Formal" y el TONO es "Cariñoso", usa un lenguaje profesional pero con un toque cálido y amable.
+
+Ejemplo correcto para Tono Cariñoso: "¡Hola mi amor! 😍 Me alegra muchísimo verte por aquí hoy. ¿Cómo estás? Cuéntame, ¿qué te trae a este lugar? Estoy aquí para ti ❤️"
+Ejemplo correcto para Tono Coqueto: "¡Ey! 😉 Vaya, qué sorpresa verte por aquí. Estaba justo pensando en ti... ¿Qué me cuentas? No te vayas sin contarme tus planes, que me interesa mucho 😜✨"
 
 Analiza cinco dimensiones de 0 a 100 (objective, context, instructions, format, constraints).
 El score debe ser el promedio matemático de estas cinco métricas.
@@ -137,19 +134,20 @@ app.post("/api/optimize", async (req, res) => {
       return res.status(400).json({ error: "Escribe un mensaje para optimizar." });
     }
 
+    // 🆕 Instrucciones de tono mejoradas (con emojis y naturalidad)
     const textToneInstructions = {
-      "Auto": "Elige el tono más acorde al mensaje.",
-      "Rápido": "Sé directo, conciso y ve al grano.",
+      "Auto": "Elige el tono más natural y acorde al mensaje.",
+      "Rápido": "Sé directo, conciso y ve al grano. Sin rodeos.",
       "Formal": "Usa un lenguaje profesional, respetuoso y estructurado.",
-      "Cariñoso": "Escribe con empatía, calidez y amabilidad.",
-      "Coqueto": "Usa un tono juguetón, simpático y ligeramente coqueto."
+      "Cariñoso": "Escribe con mucha calidez, empatía y cercanía. Utiliza emojis de cariño (❤️, 😊, 🌸, ✨). El tono debe ser como el de un amigo muy querido.",
+      "Coqueto": "Escribe con un tono juguetón, divertido, pícaro y moderno. Utiliza emojis coquetos (😉, 😏, 😜, ✨). No suenes anticuado, sé natural y simpático."
     };
 
     const userPrompt = `Estilo: ${style}\nTono: ${tone}\nInstrucciones de tono: ${textToneInstructions[tone] || textToneInstructions["Auto"]}\nDetalle: ${detail}\n\nMensaje original:\n${String(message).trim()}`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
-      temperature: 0.35,
+      temperature: 0.7, // Subimos la temperatura a 0.7 para que sea más creativo y cálido, y no tan rígido.
       messages: [
         { role: "system", content: optimizerSystemPrompt },
         { role: "user", content: userPrompt }
@@ -172,7 +170,8 @@ app.post("/api/optimize", async (req, res) => {
 // ---------------------------------------------------------
 // 4. RUTA: ASISTENTE DE VISIÓN
 // ---------------------------------------------------------
-const VISION_MODEL = process.env.GROQ_VISION_MODEL || "llama-3.2-11b-vision-preview";
+// ⚠️ RECUERDA ACTUALIZAR ESTO EN TU ENTORNO DE RENDER
+const VISION_MODEL = process.env.GROQ_VISION_MODEL || "llama-3.2-90b-vision-preview"; // Cambiado al modelo más pesado y estable actual
 
 app.post("/api/vision", async (req, res) => {
   try {

@@ -13,13 +13,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Verificación de API Key
 if (!process.env.GROQ_API_KEY) {
   console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
   process.exit(1);
 }
 
-// Configuración del cliente Groq (con timeouts mejorados)
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
   timeout: 60000,
@@ -30,7 +28,7 @@ app.use(express.json({ limit: "15mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ---------------------------------------------------------
-// 1. MANEJO DE ERRORES AMIGABLE
+// 1. MANEJO DE ERRORES (Ahora muestra el error real de Groq)
 // ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
@@ -49,11 +47,13 @@ function friendlyGroqError(error) {
   if (error?.code === "ENOTFOUND" || error?.code === "ECONNRESET" || message.includes("network")) {
     return "No se pudo conectar con la IA. Revisa tu conexión.";
   }
-  return "Ocurrió un error inesperado al procesar la solicitud.";
+  
+  // 🔥 CAMBIO CLAVE: Devuelve el mensaje real de Groq para saber qué está fallando
+  return `Error del servidor de Groq: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
 // ---------------------------------------------------------
-// 2. FUNCIONES AUXILIARES DE PARSEO (A prueba de bombas)
+// 2. FUNCIONES AUXILIARES DE PARSEO
 // ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
@@ -86,10 +86,7 @@ function normalizeOptimizedPrompt(value) {
 
 function extractJson(text) {
   const raw = String(text || "").trim();
-  // Intentar parseo directo
   try { return JSON5.parse(raw); } catch {}
-  
-  // Si falla, buscar el primer '{' y el último '}' y aislarlo
   const startCandidates = [raw.indexOf("{"), raw.indexOf("[")].filter(i => i >= 0);
   if (!startCandidates.length) throw new Error("No se encontró un objeto JSON válido.");
   const start = Math.min(...startCandidates);
@@ -112,18 +109,19 @@ function normalizeAnalysis(analysis) {
 }
 
 // ---------------------------------------------------------
-// 3. RUTA: OPTIMIZADOR DE PROMPTS
+// 3. RUTA: OPTIMIZADOR DE PROMPTS (Con instrucciones de combinación)
 // ---------------------------------------------------------
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
-Adapta el resultado al estilo y nivel de detalle solicitados.
-- Auto: elige el estilo más apropiado.
-- Formal: lenguaje profesional y preciso.
-- Creativo: lenguaje imaginativo.
-- Técnico: terminología técnica y estructura rigurosa.
-- Resumido: conciso pero completo.
-- Equilibrado: nivel medio de profundidad.
-- Detallado: máxima especificidad.
+
+REGLAS DE COMBINACIÓN DE ESTILO Y TONO (MUY IMPORTANTE):
+El usuario elegirá un ESTILO y un TONO. Debes aplicar AMBOS al mismo tiempo.
+- El ESTILO define la estructura y el formato (Auto, Formal, Creativo, Técnico).
+- El TONO define las palabras, la actitud y la emoción (Auto, Rápido, Formal, Cariñoso, Coqueto).
+
+Ejemplo: Si el Estilo es "Formal" y el Tono es "Coqueto", el texto debe tener la estructura y educación de un texto Formal, pero con palabras juguetonas y simpáticas.
+Si el Estilo es "Creativo" y el Tono es "Cariñoso", el texto debe ser imaginativo pero escrito con calidez.
+NUNCA ignores el Tono elegido por el usuario.
 
 Analiza cinco dimensiones de 0 a 100 (objective, context, instructions, format, constraints).
 El score debe ser el promedio matemático de estas cinco métricas.
@@ -134,12 +132,21 @@ Estructura obligatoria: { optimizedPrompt: "...", analysis: { objective: 0, cont
 
 app.post("/api/optimize", async (req, res) => {
   try {
-    const { message, style = "Auto", detail = "Equilibrado" } = req.body || {};
+    const { message, style = "Auto", tone = "Auto", detail = "Equilibrado" } = req.body || {};
     if (!message || !String(message).trim()) {
       return res.status(400).json({ error: "Escribe un mensaje para optimizar." });
     }
 
-    const userPrompt = `Estilo: ${style}\nDetalle: ${detail}\n\nMensaje original:\n${String(message).trim()}`;
+    const textToneInstructions = {
+      "Auto": "Elige el tono más acorde al mensaje.",
+      "Rápido": "Sé directo, conciso y ve al grano.",
+      "Formal": "Usa un lenguaje profesional, respetuoso y estructurado.",
+      "Cariñoso": "Escribe con empatía, calidez y amabilidad.",
+      "Coqueto": "Usa un tono juguetón, simpático y ligeramente coqueto."
+    };
+
+    const userPrompt = `Estilo: ${style}\nTono: ${tone}\nInstrucciones de tono: ${textToneInstructions[tone] || textToneInstructions["Auto"]}\nDetalle: ${detail}\n\nMensaje original:\n${String(message).trim()}`;
+
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       temperature: 0.35,
@@ -163,10 +170,8 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. RUTA: ASISTENTE DE VISIÓN (Modelo configurable por .env)
+// 4. RUTA: ASISTENTE DE VISIÓN
 // ---------------------------------------------------------
-// ¡NUEVO! Lee el modelo de visión desde las variables de entorno. 
-// Si Groq lo descontinúa, solo cambias esto en Render y redeployas.
 const VISION_MODEL = process.env.GROQ_VISION_MODEL || "llama-3.2-11b-vision-preview";
 
 app.post("/api/vision", async (req, res) => {
@@ -204,7 +209,7 @@ app.post("/api/vision", async (req, res) => {
     if (!text) throw new Error("La IA no devolvió texto.");
     return res.json({ text });
   } catch (error) {
-    console.error("Vision error:", error);
+    console.error("Vision error details:", JSON.stringify(error, null, 2));
     const message = String(error?.message || "").toLowerCase();
     if (error?.error?.code === "model_not_found" || error?.error?.code === "model_decommissioned" || message.includes("does not exist")) {
       return res.status(400).json({
@@ -215,9 +220,6 @@ app.post("/api/vision", async (req, res) => {
   }
 });
 
-// ---------------------------------------------------------
-// 5. SERVIDOR ESTÁTICO
-// ---------------------------------------------------------
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

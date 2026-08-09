@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
   <title>werner — Optimizador de mensaje</title>
+  <meta name="description" content="Optimizador de prompts y asistente de visión con IA.">
   <style>
     :root {
       --bg: #050a1a;
@@ -51,7 +52,9 @@
     textarea { min-height: 160px; resize: vertical; line-height: 1.6; }
     textarea:focus, select:focus { border-color: rgba(94,231,255,0.6); box-shadow: 0 0 0 4px rgba(94,231,255,0.08); }
     select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238ea7c5' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
-    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    
+    /* CAMBIO: 3 columnas para albergar el Estilo, Tono y Detalle */
+    .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
 
     button {
       border: 0; border-radius: 12px; padding: 14px 18px; color: #fff;
@@ -85,6 +88,7 @@
 
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
     @media (max-width: 560px) { 
+      /* En móvil, los controles pasan a una sola columna */
       .controls, .metrics { grid-template-columns: 1fr; } 
       .metric:last-child { grid-column: auto; }
       .card { padding: 16px; } 
@@ -96,7 +100,6 @@
   <main class="wrap">
     <header>
       <div class="brand">
-        <!-- ✅ Solo asegúrate de que tu logo.png esté en la carpeta public -->
         <img src="/logo.png" alt="Logo werner" class="logo-img" onerror="this.style.display='none'">
         <div>
           <h1>werner <span>Optimizador de mensaje</span></h1>
@@ -107,15 +110,45 @@
     </header>
 
     <section class="grid">
+      <!-- ==================== OPTIMIZADOR ==================== -->
       <article class="card">
         <div class="title-row"><h2>⚡ Optimizador</h2></div>
         <label>MENSAJE</label>
         <textarea id="message" placeholder="Escribe el prompt a mejorar..."></textarea>
+        
         <div class="controls">
-          <div><label>ESTILO</label><select id="style"><option>Auto</option><option>Formal</option><option>Creativo</option><option>Técnico</option></select></div>
-          <div><label>DETALLE</label><select id="detail"><option>Resumido</option><option selected>Equilibrado</option><option>Detallado</option></select></div>
+          <div>
+            <label for="style">ESTILO</label>
+            <select id="style">
+              <option>Auto</option>
+              <option>Formal</option>
+              <option>Creativo</option>
+              <option>Técnico</option>
+            </select>
+          </div>
+          <!-- 👇 NUEVO: Selector de TONO para el Optimizador -->
+          <div>
+            <label for="optTone">TONO</label>
+            <select id="optTone">
+              <option>Auto</option>
+              <option>Rápido</option>
+              <option>Formal</option>
+              <option>Cariñoso</option>
+              <option>Coqueto</option>
+            </select>
+          </div>
+          <div>
+            <label for="detail">DETALLE</label>
+            <select id="detail">
+              <option>Resumido</option>
+              <option selected>Equilibrado</option>
+              <option>Detallado</option>
+            </select>
+          </div>
         </div>
+
         <button id="optimizeBtn" class="primary">✨ Optimizar</button>
+
         <div class="output-head"><strong>RESULTADO</strong><button id="copyPrompt" class="secondary mini">📋 Copiar</button></div>
         <div id="promptOutput" class="output">Esperando tu mensaje...</div>
         <div class="metrics" id="metrics">
@@ -128,6 +161,7 @@
         <div class="score">Score: <strong id="score">—</strong> / 100</div>
       </article>
 
+      <!-- ==================== VISIÓN ==================== -->
       <article class="card">
         <div class="title-row"><h2>👁️ Visión</h2></div>
         <label class="drop" for="imageInput">
@@ -136,7 +170,15 @@
         </label>
         <img id="preview" class="preview">
         <div class="controls">
-          <div><label>TONO</label><select id="tone"><option>Rápido</option><option>Formal</option><option>Cariñoso</option><option>Coqueto</option></select></div>
+          <div>
+            <label for="tone">TONO</label>
+            <select id="tone">
+              <option>Rápido</option>
+              <option>Formal</option>
+              <option>Cariñoso</option>
+              <option>Coqueto</option>
+            </select>
+          </div>
           <div style="display:flex;align-items:end;"><button id="visionBtn" class="primary" style="margin-top:0;">🔍 Analizar</button></div>
         </div>
         <div class="output-head"><strong>RESPUESTA</strong><button id="copyVision" class="secondary mini">📋 Copiar</button></div>
@@ -162,12 +204,24 @@
 
     document.querySelectorAll("button[data-original]").forEach(b => b.dataset.original = b.textContent);
 
+    // ==========================================
+    // LÓGICA DEL OPTIMIZADOR (Tono añadido)
+    // ==========================================
     $("optimizeBtn").addEventListener("click", async () => {
       const msg = $("message").value.trim(), out = $("promptOutput"), btn = $("optimizeBtn");
       if(!msg) { out.className = "output error"; out.textContent = "Escribe algo."; return; }
       out.className = "output"; out.textContent = "Procesando..."; setLoading(btn, true, "⚡ Pensando...");
       try {
-        const r = await fetch("/api/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg, style: $("style").value, detail: $("detail").value }) });
+        const r = await fetch("/api/optimize", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ 
+            message: msg, 
+            style: $("style").value, 
+            tone: $("optTone").value, // 👈 Enviamos el tono al backend
+            detail: $("detail").value 
+          }) 
+        });
         const d = await r.json();
         if(!r.ok) throw new Error(d.error);
         out.textContent = d.optimizedPrompt;
@@ -178,6 +232,9 @@
       finally { setLoading(btn, false); }
     });
 
+    // ==========================================
+    // LÓGICA DE VISIÓN
+    // ==========================================
     let image = "";
     $("imageInput").addEventListener("change", e => {
       const file = e.target.files?.[0];
@@ -192,7 +249,11 @@
       if(!image) { out.className = "output error"; out.textContent = "Selecciona una imagen."; return; }
       out.className = "output"; out.textContent = "Analizando..."; setLoading(btn, true, "🔍 Analizando...");
       try {
-        const r = await fetch("/api/vision", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image, tone: $("tone").value }) });
+        const r = await fetch("/api/vision", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ image, tone: $("tone").value }) 
+        });
         const d = await r.json();
         if(!r.ok) throw new Error(d.error);
         out.textContent = d.text;

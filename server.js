@@ -93,31 +93,38 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
-const optimizerSystemPrompt = `
-Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
+// ============================================================
+// NUEVO SISTEMA: ASISTENTE DE RESPUESTAS + OPTIMIZADOR
+// ============================================================
+const assistantSystemPrompt = `
+Eres un experto en comunicación y redacción de respuestas. Tu tarea principal es generar respuestas perfectas a los mensajes que el usuario recibe de otras personas.
+El usuario te dará el mensaje que alguien le ha enviado, y tú deberás escribir una respuesta adecuada en español.
+No inventes información de quien envía el mensaje, solo responde al contenido del mismo.
 
 REGLAS DE COMBINACIÓN DE ESTILO Y TONO (MUY IMPORTANTE):
 El usuario elegirá un ESTILO y un TONO. Debes aplicar AMBOS al mismo tiempo.
-- El ESTILO define la estructura y el formato (Auto, Formal, Creativo, Técnico).
+- El ESTILO define la estructura y la formalidad (Auto, Formal, Creativo, Técnico).
 - El TONO define las palabras, la actitud y la emoción (Auto, Rápido, Formal, Cariñoso, Coqueto).
 
 🚨 REGLAS DE CALIDEZ Y EMOJIS:
 Si el TONO es "Cariñoso" o "Coqueto":
 - El texto debe sonar HUMANO, natural y cercano. NO escribas frases poéticas, dramáticas o de novela antigua.
 - Usa emojis modernos (❤️, 😊, ✨, 🌸, 😉, 😏, 😜) para dar calidez.
-- Si el ESTILO es "Formal" y el TONO es "Cariñoso", usa un lenguaje profesional pero con un toque cálido y amable.
 
-Analiza cinco dimensiones de 0 a 100 (objective, context, instructions, format, constraints).
+Si el mensaje del usuario es un prompt de trabajo (para mejorar una instrucción de IA), también puedes optimizarlo. Pero prioriza generar una respuesta directa al mensaje entrante.
+
+Analiza cinco dimensiones de 0 a 100 del mensaje original (objective, context, instructions, format, constraints).
 El score debe ser el promedio matemático de estas cinco métricas.
-optimizedPrompt debe ser TEXTO PLANO, no un objeto.
+La respuesta generada debe ser TEXTO PLANO, no un objeto.
 Responde EXCLUSIVAMENTE con JSON5 válido, sin texto extra.
+Estructura obligatoria: { optimizedPrompt: "...", analysis: { objective: 0, context: 0, instructions: 0, format: 0, constraints: 0, score: 0 } }
 `;
 
 app.post("/api/optimize", async (req, res) => {
   try {
     const { message, style = "Auto", tone = "Auto", detail = "Equilibrado" } = req.body || {};
     if (!message || !String(message).trim()) {
-      return res.status(400).json({ error: "Escribe un mensaje para optimizar." });
+      return res.status(400).json({ error: "Escribe un mensaje o prompt." });
     }
 
     const textToneInstructions = {
@@ -128,13 +135,13 @@ app.post("/api/optimize", async (req, res) => {
       "Coqueto": "Escribe con un tono juguetón, divertido, pícaro y moderno. Utiliza emojis coquetos (😉, 😏, 😜, ✨). No suenes anticuado, sé natural y simpático."
     };
 
-    const userPrompt = `Estilo: ${style}\nTono: ${tone}\nInstrucciones de tono: ${textToneInstructions[tone] || textToneInstructions["Auto"]}\nDetalle: ${detail}\n\nMensaje original:\n${String(message).trim()}`;
+    const userPrompt = `Estilo: ${style}\nTono: ${tone}\nInstrucciones de tono: ${textToneInstructions[tone] || textToneInstructions["Auto"]}\nDetalle: ${detail}\n\nMensaje recibido (o prompt):\n${String(message).trim()}`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       temperature: 0.7,
       messages: [
-        { role: "system", content: optimizerSystemPrompt },
+        { role: "system", content: assistantSystemPrompt },
         { role: "user", content: userPrompt }
       ]
     });
@@ -144,7 +151,7 @@ app.post("/api/optimize", async (req, res) => {
     const analysis = normalizeAnalysis(parsed.analysis || {});
     const optimizedPrompt = normalizeOptimizedPrompt(parsed.optimizedPrompt);
 
-    if (!optimizedPrompt) throw new Error("La IA no generó un prompt válido.");
+    if (!optimizedPrompt) throw new Error("La IA no generó una respuesta válida.");
     return res.json({ optimizedPrompt, analysis });
   } catch (error) {
     console.error("Optimize error:", error);

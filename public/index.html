@@ -95,8 +95,6 @@
     .output-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; }
     .output-head strong { color: #b9d8f7; font-size: 13px; }
     .mini { padding: 6px 12px; border-radius: 8px; font-size: 12px; }
-    
-    /* Botón de Leer */
     .speak-btn {
       background: rgba(62, 110, 166, 0.15);
       border: 1px solid rgba(101, 170, 230, 0.15);
@@ -133,18 +131,18 @@
         <img src="/logo.png" alt="Logo werner" class="logo-img" onerror="this.style.display='none'">
         <div>
           <h1>werner <span>Optimizador de mensaje</span></h1>
-          <div class="sub">Potencia tus indicaciones con inteligencia artificial.</div>
+          <div class="sub">Responde mensajes y potencia indicaciones con IA.</div>
         </div>
       </div>
       <div class="status">● GROQ AI READY</div>
     </header>
 
     <article class="card">
-      <div class="title-row"><h2>⚡ Optimizador</h2></div>
-      <label>MENSAJE</label>
+      <div class="title-row"><h2>⚡ Asistente de respuestas</h2></div>
+      <label>MENSAJE RECIBIDO / PROMPT</label>
       
       <div class="input-area">
-        <textarea id="message" placeholder="Escribe el prompt a mejorar... (o usa el micrófono 🎤)"></textarea>
+        <textarea id="message" placeholder="Escribe aquí lo que te han dicho... (o un prompt a mejorar)"></textarea>
         <button id="micBtn" class="mic-btn" onclick="toggleVoice()" aria-label="Dictado por voz">🎤</button>
       </div>
 
@@ -177,7 +175,7 @@
           </select>
         </div>
       </div>
-      <button id="optimizeBtn" class="primary">✨ Optimizar</button>
+      <button id="optimizeBtn" class="primary">✨ Generar respuesta</button>
       
       <div class="output-head">
         <strong>RESULTADO</strong>
@@ -215,9 +213,7 @@
 
     document.querySelectorAll("button[data-original]").forEach(b => b.dataset.original = b.textContent);
 
-    // ============================================
-    // 🎙️ LÓGICA DE DICTADO POR VOZ
-    // ============================================
+    // Lógica de dictado por voz
     let recognition = null;
     let isListening = false;
 
@@ -284,19 +280,15 @@
       }
     }
 
-    // ============================================
-    // 🔊 LÓGICA DE LECTURA EN VOZ ALTA
-    // ============================================
+    // Lógica de lectura en voz alta
     let isSpeaking = false;
 
     function toggleSpeak() {
       const btn = document.getElementById('speakBtn');
       const text = document.getElementById('promptOutput').textContent;
 
-      // Si no hay texto o es el texto por defecto, no hacer nada
       if (!text || text.includes("Esperando")) return;
 
-      // Si ya está hablando, lo detenemos
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
         isSpeaking = false;
@@ -305,19 +297,16 @@
         return;
       }
 
-      // Verificar soporte
       if (!('speechSynthesis' in window)) {
         alert("Tu navegador no soporta la lectura en voz alta.");
         return;
       }
 
-      // Configurar la voz
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES'; // Español
-      utterance.rate = 0.9; // Velocidad ligeramente más lenta para mejor comprensión
-      utterance.pitch = 1.0; // Tono normal
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
 
-      // Eventos para el botón
       utterance.onstart = function() {
         isSpeaking = true;
         btn.classList.add('speaking');
@@ -338,17 +327,14 @@
         }
       };
 
-      // Reproducir
       window.speechSynthesis.speak(utterance);
     }
 
-    // ============================================
-    // 🚀 LÓGICA DE OPTIMIZACIÓN
-    // ============================================
+    // Lógica principal de generación de respuesta
     $("optimizeBtn").addEventListener("click", async () => {
       const msg = $("message").value.trim(), out = $("promptOutput"), btn = $("optimizeBtn");
       if(!msg) { out.className = "output error"; out.textContent = "Escribe algo."; return; }
-      out.className = "output"; out.textContent = "Procesando..."; setLoading(btn, true, "⚡ Pensando...");
+      out.className = "output"; out.textContent = "Pensando en la mejor respuesta..."; setLoading(btn, true, "⚡ Pensando...");
       try {
         const r = await fetch("/api/optimize", { 
           method: "POST", 

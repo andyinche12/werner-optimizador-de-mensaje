@@ -194,7 +194,7 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // Usamos fetch nativo para controlar el payload
+    // 🚀 CORRECCIÓN FINAL: DEEPSEEK NO QUIERE UN OBJETO, QUIERE EL STRING DIRECTO.
     const payload = {
       model: "deepseek-vl2",
       messages: [
@@ -207,7 +207,7 @@ app.post("/api/vision", async (req, res) => {
             },
             {
               type: "image_url",
-              image_url: { url: image } // ✅ Formato estándar OpenAI que DeepSeek espera
+              image_url: image // ✅ CAMBIO CLAVE: Sin el envoltorio { url: ... }
             }
           ]
         }

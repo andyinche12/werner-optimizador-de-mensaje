@@ -4,8 +4,6 @@ import Groq from "groq-sdk";
 import JSON5 from "json5";
 import path from "path";
 import { fileURLToPath } from "url";
-// 🚀 USAMOS EL SDK DE OPENAI PARA CONECTARNOS A DEEPSEEK
-import OpenAI from "openai";
 
 dotenv.config();
 
@@ -25,25 +23,15 @@ if (!process.env.DEEPSEEK_API_KEY) {
   process.exit(1);
 }
 
-// Cliente para el Optimizador de Texto (Groq)
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
   timeout: 60000,
   maxRetries: 3
 });
 
-// Cliente para el Asistente de Visión (DeepSeek usando el SDK de OpenAI)
-const deepseek = new OpenAI({
-  baseURL: 'https://api.deepseek.com/v1',
-  apiKey: process.env.DEEPSEEK_API_KEY
-});
-
 app.use(express.json({ limit: "15mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ---------------------------------------------------------
-// 1. MANEJO DE ERRORES
-// ---------------------------------------------------------
 function friendlyGroqError(error) {
   const status = error?.status ?? error?.statusCode;
   const message = String(error?.message || "").toLowerCase();
@@ -64,9 +52,6 @@ function friendlyGroqError(error) {
   return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
 }
 
-// ---------------------------------------------------------
-// 2. FUNCIONES AUXILIARES DE PARSEO (TEXTO)
-// ---------------------------------------------------------
 function normalizeOptimizedPrompt(value) {
   if (typeof value === "string") return value;
   if (!value) return "";
@@ -120,9 +105,6 @@ function normalizeAnalysis(analysis) {
   return normalized;
 }
 
-// ---------------------------------------------------------
-// 3. OPTIMIZADOR DE PROMPTS (GROQ)
-// ---------------------------------------------------------
 const optimizerSystemPrompt = `
 Eres un arquitecto experto en ingeniería de prompts. Tu tarea es transformar el mensaje del usuario en un prompt largo, preciso, estructurado y reutilizable, sin cambiar su intención original.
 
@@ -184,7 +166,7 @@ app.post("/api/optimize", async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. ASISTENTE DE VISIÓN (DEEPSEEK CON SDK DE OPENAI)
+// 4. ASISTENTE DE VISIÓN (DEEPSEEK CON FETCH NATIVO Y FORMATO CORRECTO)
 // ---------------------------------------------------------
 app.post("/api/vision", async (req, res) => {
   try {
@@ -206,28 +188,45 @@ app.post("/api/vision", async (req, res) => {
       "Coqueto": "Responde con un tono juguetón, divertido y ligeramente coqueto. Usa emojis (😉, ✨)."
     };
 
-    // 🚀 USAMOS EL SDK DE OPENAI PARA LA LLAMADA, EL SDK MANEJA EL FORMATO PERFECTO
-    const response = await deepseek.chat.completions.create({
+    // 🔥 CORRECCIÓN DEFINITIVA PARA DEEPSEEK:
+    // DeepSeek espera que 'image_url' sea un STRING directo, no un objeto { url: ... }.
+    // Además, al usar fetch nativo, evitamos que el SDK de OpenAI altere el payload.
+    const payload = {
       model: "deepseek-vl",
       messages: [
         {
           role: "user",
           content: [
-            { 
-              type: "text", 
+            {
+              type: "text",
               text: `Analiza esta captura de pantalla y responde en español.\nTono: ${tone}.\nInstrucciones: ${toneInstructions[tone] || toneInstructions["Rápido"]}\n\nNo inventes información que no sea visible.`
             },
-            { 
-              type: "image_url", 
-              image_url: { url: image } 
+            {
+              type: "image_url",
+              image_url: image // ✅ Clave: Se pasa el string Base64 directamente, sin anidar en un objeto.
             }
           ]
         }
       ],
       max_tokens: 1000
+    };
+
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify(payload)
     });
 
-    const text = response.choices?.[0]?.message?.content?.trim();
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || `Error ${response.status} de DeepSeek`);
+    }
+
+    const text = data.choices?.[0]?.message?.content?.trim();
     if (!text) throw new Error("DeepSeek no devolvió texto.");
     
     return res.json({ text });
@@ -243,9 +242,6 @@ app.post("/api/vision", async (req, res) => {
   }
 });
 
-// ---------------------------------------------------------
-// 5. SERVIDOR ESTÁTICO
-// ---------------------------------------------------------
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });

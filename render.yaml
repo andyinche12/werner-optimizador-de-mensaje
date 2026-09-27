@@ -1,0 +1,40 @@
+# render.yaml
+# Configuración para deploy en Render.com (gratis)
+# Conecta tu repo GitHub y Render detectará este archivo automáticamente
+
+services:
+  - type: web
+    name: werner-audio-factory-backend
+    runtime: node
+    plan: free
+    region: oregon  # o frankfurt, singapore, etc.
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"  # Render usa puerto 10000 por defecto
+      - key: FRONTEND_URL
+        value: https://werner-audio-factory.vercel.app  # CAMBIA esto por tu URL de Vercel
+      - key: GROQ_API_KEY
+        sync: false  # Se configura manualmente en dashboard de Render
+      - key: TEMP_DIR
+        value: ./temp
+      - key: AUDIO_CLEANUP_HOURS
+        value: "24"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: "100"
+      - key: LOG_LEVEL
+        value: "info"
+    # Disco persistente para archivos temporales (opcional, 1GB gratis)
+    # disk:
+    #   name: temp-storage
+    #   mountPath: ./temp
+    #   sizeGB: 1
+
+# Nota: Para usar disco persistente, descomenta la sección disk arriba
+# y asegúrate de que TEMP_DIR apunte a ./temp

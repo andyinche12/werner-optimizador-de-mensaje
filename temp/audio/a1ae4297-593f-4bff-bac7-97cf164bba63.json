@@ -1,0 +1,378 @@
+{
+  "metadata": {
+    "totalDuration": 28,
+    "wordCount": 71,
+    "generatedAt": "2026-09-26T19:49:06.970Z",
+    "voice": "es-ES-AlvaroNeural",
+    "tone": "neutral"
+  },
+  "words": [
+    {
+      "word": "�Listo",
+      "start": 0,
+      "end": 394
+    },
+    {
+      "word": "para",
+      "start": 394,
+      "end": 789
+    },
+    {
+      "word": "convertir",
+      "start": 789,
+      "end": 1183
+    },
+    {
+      "word": "Hola",
+      "start": 1183,
+      "end": 1577
+    },
+    {
+      "word": "Mundo",
+      "start": 1577,
+      "end": 1972
+    },
+    {
+      "word": "en",
+      "start": 1972,
+      "end": 2366
+    },
+    {
+      "word": "tu",
+      "start": 2366,
+      "end": 2761
+    },
+    {
+      "word": "primer",
+      "start": 2761,
+      "end": 3155
+    },
+    {
+      "word": "gran",
+      "start": 3155,
+      "end": 3549
+    },
+    {
+      "word": "logro?",
+      "start": 3549,
+      "end": 3944
+    },
+    {
+      "word": "En",
+      "start": 3944,
+      "end": 4338
+    },
+    {
+      "word": "30",
+      "start": 4338,
+      "end": 4732
+    },
+    {
+      "word": "segundos",
+      "start": 4732,
+      "end": 5127
+    },
+    {
+      "word": "ver�s",
+      "start": 5127,
+      "end": 5521
+    },
+    {
+      "word": "por",
+      "start": 5521,
+      "end": 5915
+    },
+    {
+      "word": "qu�",
+      "start": 5915,
+      "end": 6310
+    },
+    {
+      "word": "es",
+      "start": 6310,
+      "end": 6704
+    },
+    {
+      "word": "la",
+      "start": 6704,
+      "end": 7099
+    },
+    {
+      "word": "puerta",
+      "start": 7099,
+      "end": 7493
+    },
+    {
+      "word": "de",
+      "start": 7493,
+      "end": 7887
+    },
+    {
+      "word": "la",
+      "start": 7887,
+      "end": 8282
+    },
+    {
+      "word": "programaci�n.",
+      "start": 8282,
+      "end": 8676
+    },
+    {
+      "word": "Escribe:",
+      "start": 8676,
+      "end": 9070
+    },
+    {
+      "word": "print(\"Hola",
+      "start": 9070,
+      "end": 9465
+    },
+    {
+      "word": "Mundo\")",
+      "start": 9465,
+      "end": 9859
+    },
+    {
+      "word": "y",
+      "start": 9859,
+      "end": 10254
+    },
+    {
+      "word": "ejec�talo.",
+      "start": 10254,
+      "end": 10648
+    },
+    {
+      "word": "La",
+      "start": 10648,
+      "end": 11042
+    },
+    {
+      "word": "pantalla",
+      "start": 11042,
+      "end": 11437
+    },
+    {
+      "word": "mostrar�",
+      "start": 11437,
+      "end": 11831
+    },
+    {
+      "word": "el",
+      "start": 11831,
+      "end": 12225
+    },
+    {
+      "word": "saludo,",
+      "start": 12225,
+      "end": 12620
+    },
+    {
+      "word": "confirmando",
+      "start": 12620,
+      "end": 13014
+    },
+    {
+      "word": "que",
+      "start": 13014,
+      "end": 13408
+    },
+    {
+      "word": "tu",
+      "start": 13408,
+      "end": 13803
+    },
+    {
+      "word": "c�digo",
+      "start": 13803,
+      "end": 14197
+    },
+    {
+      "word": "funciona.",
+      "start": 14197,
+      "end": 14592
+    },
+    {
+      "word": "Este",
+      "start": 14592,
+      "end": 14986
+    },
+    {
+      "word": "simple",
+      "start": 14986,
+      "end": 15380
+    },
+    {
+      "word": "paso",
+      "start": 15380,
+      "end": 15775
+    },
+    {
+      "word": "prueba",
+      "start": 15775,
+      "end": 16169
+    },
+    {
+      "word": "que",
+      "start": 16169,
+      "end": 16563
+    },
+    {
+      "word": "cualquier",
+      "start": 16563,
+      "end": 16958
+    },
+    {
+      "word": "proyecto",
+      "start": 16958,
+      "end": 17352
+    },
+    {
+      "word": "empieza",
+      "start": 17352,
+      "end": 17746
+    },
+    {
+      "word": "con",
+      "start": 17746,
+      "end": 18141
+    },
+    {
+      "word": "una",
+      "start": 18141,
+      "end": 18535
+    },
+    {
+      "word": "idea",
+      "start": 18535,
+      "end": 18930
+    },
+    {
+      "word": "clara.",
+      "start": 18930,
+      "end": 19324
+    },
+    {
+      "word": "�Imagina",
+      "start": 19324,
+      "end": 19718
+    },
+    {
+      "word": "lo",
+      "start": 19718,
+      "end": 20113
+    },
+    {
+      "word": "que",
+      "start": 20113,
+      "end": 20507
+    },
+    {
+      "word": "crear�s",
+      "start": 20507,
+      "end": 20901
+    },
+    {
+      "word": "despu�s!",
+      "start": 20901,
+      "end": 21296
+    },
+    {
+      "word": "�nete",
+      "start": 21296,
+      "end": 21690
+    },
+    {
+      "word": "a",
+      "start": 21690,
+      "end": 22085
+    },
+    {
+      "word": "nuestro",
+      "start": 22085,
+      "end": 22479
+    },
+    {
+      "word": "curso",
+      "start": 22479,
+      "end": 22873
+    },
+    {
+      "word": "y",
+      "start": 22873,
+      "end": 23268
+    },
+    {
+      "word": "lleva",
+      "start": 23268,
+      "end": 23662
+    },
+    {
+      "word": "tu",
+      "start": 23662,
+      "end": 24056
+    },
+    {
+      "word": "curiosidad",
+      "start": 24056,
+      "end": 24451
+    },
+    {
+      "word": "al",
+      "start": 24451,
+      "end": 24845
+    },
+    {
+      "word": "siguiente",
+      "start": 24845,
+      "end": 25239
+    },
+    {
+      "word": "nivel.",
+      "start": 25239,
+      "end": 25634
+    },
+    {
+      "word": "Inscr�bete",
+      "start": 25634,
+      "end": 26028
+    },
+    {
+      "word": "ahora",
+      "start": 26028,
+      "end": 26423
+    },
+    {
+      "word": "y",
+      "start": 26423,
+      "end": 26817
+    },
+    {
+      "word": "programa",
+      "start": 26817,
+      "end": 27211
+    },
+    {
+      "word": "tu",
+      "start": 27211,
+      "end": 27606
+    },
+    {
+      "word": "futuro.",
+      "start": 27606,
+      "end": 28000
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "text": "�Listo para convertir Hola Mundo en tu primer gran logro? En 30 segundos ver�s por qu� es la puerta de la programaci�n. Escribe: print(\"Hola Mundo\") y ejec�talo. La pantalla mostrar� el saludo, confirmando que tu c�digo funciona. Este simple paso prueba que cualquier proyecto empieza con una idea clara. �Imagina lo que crear�s despu�s! �nete a nuestro curso y lleva tu curiosidad al siguiente nivel. Inscr�bete ahora y programa tu futuro.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 0,
+      "endWord": 70,
+      "startTime": 0,
+      "endTime": 28000
+    }
+  ]
+}

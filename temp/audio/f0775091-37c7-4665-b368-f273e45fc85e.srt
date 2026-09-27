@@ -1,0 +1,27 @@
+1
+00:00:00,000 --> 00:00:03,111
+¡Ups! Error al imprimir Hola Mundo.
+
+2
+00:00:03,111 --> 00:00:05,185
+Apareció un mensaje raro:
+
+3
+00:00:05,185 --> 00:00:12,444
+En Python la sintaxis es simple: escribe print('Hola Mundo') y usa paréntesis y comillas.
+
+4
+00:00:12,444 --> 00:00:13,999
+Veamos la corrección.
+
+5
+00:00:13,999 --> 00:00:18,666
+Ejecuta el código y la salida será: Hola Mundo.
+
+6
+00:00:18,666 --> 00:00:24,888
+Ahora es tu turno: escribe tu saludo y compártelo en los comentarios.
+
+7
+00:00:24,888 --> 00:00:27,999
+¡Vamos, crea tu propio Hola Mundo!

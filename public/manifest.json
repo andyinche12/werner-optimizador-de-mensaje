@@ -1,11 +1,12 @@
 {
-  "name": "werner Optimizador de mensaje",
-  "short_name": "werner",
-  "description": "Optimiza y responde mensajes con IA.",
+  "name": "werner Audio Factory",
+  "short_name": "werner Audio",
+  "description": "Genera audios narrados con IA para YouTube, TikTok y Reels. Guion → Voz → Publicar.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#050a1a",
   "theme_color": "#28a9ff",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/logo.png",
@@ -18,6 +19,17 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "music"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Nuevo proyecto",
+      "short_name": "Nuevo",
+      "description": "Crear un nuevo audio desde cero",
+      "url": "/?new=1",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
     }
   ]
 }

@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:06,940
+¿Sabías que la frase ‘Hola Mundo’ es la llave que abre cualquier lenguaje de programación?
+
+2
+00:00:06,940 --> 00:00:12,492
+Desde los años setenta, los programadores la usan para probar su entorno.
+
+3
+00:00:12,492 --> 00:00:18,970
+Hoy, más de diez millones de dispositivos ejecutan su primer ‘Hola Mundo’ cada día.
+
+4
+00:00:18,970 --> 00:00:22,671
+Este dato demuestra el poder universal del código.
+
+5
+00:00:22,671 --> 00:00:31,000
+¿Cuál fue tu primer ‘Hola Mundo’? Cuéntanos en los comentarios y sigue nuestra cuenta para más datos curiosos.

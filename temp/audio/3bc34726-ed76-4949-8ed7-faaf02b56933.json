@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "totalDuration": 53.368163,
+    "wordCount": 9,
+    "generatedAt": "2026-09-27T18:06:57.166Z",
+    "voice": "es-ES-AlvaroNeural",
+    "tone": "neutral"
+  },
+  "words": [
+    {
+      "word": "Hola,",
+      "start": 0,
+      "end": 5930
+    },
+    {
+      "word": "esto",
+      "start": 5930,
+      "end": 11860
+    },
+    {
+      "word": "es",
+      "start": 11860,
+      "end": 17789
+    },
+    {
+      "word": "una",
+      "start": 17789,
+      "end": 23719
+    },
+    {
+      "word": "prueba",
+      "start": 23719,
+      "end": 29649
+    },
+    {
+      "word": "de",
+      "start": 29649,
+      "end": 35579
+    },
+    {
+      "word": "audio.",
+      "start": 35579,
+      "end": 41509
+    },
+    {
+      "word": "Funciona",
+      "start": 41509,
+      "end": 47438
+    },
+    {
+      "word": "correctamente.",
+      "start": 47438,
+      "end": 53368
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "text": "Hola, esto es una prueba de audio. [pausa:1s] Funciona correctamente.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 0,
+      "endWord": 9,
+      "startTime": 0,
+      "endTime": 53368.163
+    }
+  ]
+}

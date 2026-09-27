@@ -1,0 +1,39 @@
+1
+00:00:00,000 --> 00:00:04,235
+¿Puedes resolver esta ecuación imposible en solo 3 pasos?
+
+2
+00:00:04,235 --> 00:00:08,000
+La ecuación es 2x + 7 = 19.
+
+3
+00:00:08,000 --> 00:00:11,294
+Paso 1: resta 7 a ambos lados.
+
+4
+00:00:11,294 --> 00:00:13,176
+Obtienes 2x = 12.
+
+5
+00:00:13,176 --> 00:00:15,529
+Paso 2: divide entre 2.
+
+6
+00:00:15,529 --> 00:00:17,411
+Resulta x = 6.
+
+7
+00:00:17,411 --> 00:00:21,647
+¡Sorpresa! El truco clave es simplificar antes de multiplicar.
+
+8
+00:00:21,647 --> 00:00:23,058
+[énfasis]Simplificar[/énfasis] ahorra tiempo.
+
+9
+00:00:23,058 --> 00:00:26,352
+Este método funciona en cualquier ecuación lineal.
+
+10
+00:00:26,352 --> 00:00:31,999
+Ahora, tú: intenta el reto y comparte tu respuesta en los comentarios.

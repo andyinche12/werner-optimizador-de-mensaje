@@ -1,0 +1,699 @@
+{
+  "metadata": {
+    "totalDuration": 212.349388,
+    "wordCount": 129,
+    "generatedAt": "2026-09-27T18:07:56.050Z",
+    "voice": "es-ES-AlvaroNeural",
+    "tone": "cercano",
+    "contentType": "educativo"
+  },
+  "words": [
+    {
+      "word": "¿Puedes",
+      "start": 0,
+      "end": 1646
+    },
+    {
+      "word": "reconocer",
+      "start": 1646,
+      "end": 3292
+    },
+    {
+      "word": "este",
+      "start": 3292,
+      "end": 4938
+    },
+    {
+      "word": "sonido?",
+      "start": 4938,
+      "end": 6584
+    },
+    {
+      "word": "Soy",
+      "start": 6584,
+      "end": 8231
+    },
+    {
+      "word": "tu",
+      "start": 8231,
+      "end": 9877
+    },
+    {
+      "word": "guía",
+      "start": 9877,
+      "end": 11523
+    },
+    {
+      "word": "auditiva.",
+      "start": 11523,
+      "end": 13169
+    },
+    {
+      "word": "¿Te",
+      "start": 13169,
+      "end": 14815
+    },
+    {
+      "word": "atreves",
+      "start": 14815,
+      "end": 16461
+    },
+    {
+      "word": "a",
+      "start": 16461,
+      "end": 18107
+    },
+    {
+      "word": "descubrirlo",
+      "start": 18107,
+      "end": 19753
+    },
+    {
+      "word": "en",
+      "start": 19753,
+      "end": 21400
+    },
+    {
+      "word": "solo",
+      "start": 21400,
+      "end": 23046
+    },
+    {
+      "word": "diez",
+      "start": 23046,
+      "end": 24692
+    },
+    {
+      "word": "segundos?",
+      "start": 24692,
+      "end": 26338
+    },
+    {
+      "word": "Escucha",
+      "start": 26338,
+      "end": 27984
+    },
+    {
+      "word": "el",
+      "start": 27984,
+      "end": 29630
+    },
+    {
+      "word": "fragmento.",
+      "start": 29630,
+      "end": 31276
+    },
+    {
+      "word": "[audio:",
+      "start": 31276,
+      "end": 32922
+    },
+    {
+      "word": "fragmento]",
+      "start": 32922,
+      "end": 34569
+    },
+    {
+      "word": "Ahora,",
+      "start": 34569,
+      "end": 36215
+    },
+    {
+      "word": "pon",
+      "start": 36215,
+      "end": 37861
+    },
+    {
+      "word": "atención.",
+      "start": 37861,
+      "end": 39507
+    },
+    {
+      "word": "Identifica",
+      "start": 39507,
+      "end": 41153
+    },
+    {
+      "word": "los",
+      "start": 41153,
+      "end": 42799
+    },
+    {
+      "word": "detalles:",
+      "start": 42799,
+      "end": 44445
+    },
+    {
+      "word": "el",
+      "start": 44445,
+      "end": 46091
+    },
+    {
+      "word": "timbre,",
+      "start": 46091,
+      "end": 47737
+    },
+    {
+      "word": "el",
+      "start": 47737,
+      "end": 49384
+    },
+    {
+      "word": "ritmo,",
+      "start": 49384,
+      "end": 51030
+    },
+    {
+      "word": "la",
+      "start": 51030,
+      "end": 52676
+    },
+    {
+      "word": "dirección.",
+      "start": 52676,
+      "end": 54322
+    },
+    {
+      "word": "Mientras",
+      "start": 54322,
+      "end": 55968
+    },
+    {
+      "word": "escuchas,",
+      "start": 55968,
+      "end": 57614
+    },
+    {
+      "word": "concéntrate",
+      "start": 57614,
+      "end": 59260
+    },
+    {
+      "word": "en",
+      "start": 59260,
+      "end": 60906
+    },
+    {
+      "word": "el",
+      "start": 60906,
+      "end": 62553
+    },
+    {
+      "word": "fondo",
+      "start": 62553,
+      "end": 64199
+    },
+    {
+      "word": "y",
+      "start": 64199,
+      "end": 65845
+    },
+    {
+      "word": "en",
+      "start": 65845,
+      "end": 67491
+    },
+    {
+      "word": "los",
+      "start": 67491,
+      "end": 69137
+    },
+    {
+      "word": "ecos.",
+      "start": 69137,
+      "end": 70783
+    },
+    {
+      "word": "Observa",
+      "start": 70783,
+      "end": 72429
+    },
+    {
+      "word": "cómo",
+      "start": 72429,
+      "end": 74075
+    },
+    {
+      "word": "cambian",
+      "start": 74075,
+      "end": 75721
+    },
+    {
+      "word": "los",
+      "start": 75721,
+      "end": 77368
+    },
+    {
+      "word": "volúmenes.",
+      "start": 77368,
+      "end": 79014
+    },
+    {
+      "word": "La",
+      "start": 79014,
+      "end": 80660
+    },
+    {
+      "word": "técnica",
+      "start": 80660,
+      "end": 82306
+    },
+    {
+      "word": "es",
+      "start": 82306,
+      "end": 83952
+    },
+    {
+      "word": "escuchar",
+      "start": 83952,
+      "end": 85598
+    },
+    {
+      "word": "activamente:",
+      "start": 85598,
+      "end": 87244
+    },
+    {
+      "word": "aislar",
+      "start": 87244,
+      "end": 88890
+    },
+    {
+      "word": "capas,",
+      "start": 88890,
+      "end": 90537
+    },
+    {
+      "word": "repetir",
+      "start": 90537,
+      "end": 92183
+    },
+    {
+      "word": "mentalmente,",
+      "start": 92183,
+      "end": 93829
+    },
+    {
+      "word": "marcar",
+      "start": 93829,
+      "end": 95475
+    },
+    {
+      "word": "lo",
+      "start": 95475,
+      "end": 97121
+    },
+    {
+      "word": "inesperado.",
+      "start": 97121,
+      "end": 98767
+    },
+    {
+      "word": "Respuesta:",
+      "start": 98767,
+      "end": 100413
+    },
+    {
+      "word": "es",
+      "start": 100413,
+      "end": 102059
+    },
+    {
+      "word": "el",
+      "start": 102059,
+      "end": 103706
+    },
+    {
+      "word": "canto",
+      "start": 103706,
+      "end": 105352
+    },
+    {
+      "word": "del",
+      "start": 105352,
+      "end": 106998
+    },
+    {
+      "word": "colibrí",
+      "start": 106998,
+      "end": 108644
+    },
+    {
+      "word": "en",
+      "start": 108644,
+      "end": 110290
+    },
+    {
+      "word": "primavera.",
+      "start": 110290,
+      "end": 111936
+    },
+    {
+      "word": "¿Por",
+      "start": 111936,
+      "end": 113582
+    },
+    {
+      "word": "qué?",
+      "start": 113582,
+      "end": 115228
+    },
+    {
+      "word": "El",
+      "start": 115228,
+      "end": 116874
+    },
+    {
+      "word": "pico",
+      "start": 116874,
+      "end": 118521
+    },
+    {
+      "word": "agudo,",
+      "start": 118521,
+      "end": 120167
+    },
+    {
+      "word": "el",
+      "start": 120167,
+      "end": 121813
+    },
+    {
+      "word": "trino",
+      "start": 121813,
+      "end": 123459
+    },
+    {
+      "word": "rápido",
+      "start": 123459,
+      "end": 125105
+    },
+    {
+      "word": "y",
+      "start": 125105,
+      "end": 126751
+    },
+    {
+      "word": "la",
+      "start": 126751,
+      "end": 128397
+    },
+    {
+      "word": "pausa",
+      "start": 128397,
+      "end": 130043
+    },
+    {
+      "word": "breve",
+      "start": 130043,
+      "end": 131690
+    },
+    {
+      "word": "son",
+      "start": 131690,
+      "end": 133336
+    },
+    {
+      "word": "pistas",
+      "start": 133336,
+      "end": 134982
+    },
+    {
+      "word": "clave.",
+      "start": 134982,
+      "end": 136628
+    },
+    {
+      "word": "Usaste",
+      "start": 136628,
+      "end": 138274
+    },
+    {
+      "word": "el",
+      "start": 138274,
+      "end": 139920
+    },
+    {
+      "word": "truco",
+      "start": 139920,
+      "end": 141566
+    },
+    {
+      "word": "de",
+      "start": 141566,
+      "end": 143212
+    },
+    {
+      "word": "enfocar",
+      "start": 143212,
+      "end": 144858
+    },
+    {
+      "word": "el",
+      "start": 144858,
+      "end": 146505
+    },
+    {
+      "word": "tono",
+      "start": 146505,
+      "end": 148151
+    },
+    {
+      "word": "alto",
+      "start": 148151,
+      "end": 149797
+    },
+    {
+      "word": "y",
+      "start": 149797,
+      "end": 151443
+    },
+    {
+      "word": "la",
+      "start": 151443,
+      "end": 153089
+    },
+    {
+      "word": "cadencia.",
+      "start": 153089,
+      "end": 154735
+    },
+    {
+      "word": "Descarga",
+      "start": 154735,
+      "end": 156381
+    },
+    {
+      "word": "el",
+      "start": 156381,
+      "end": 158027
+    },
+    {
+      "word": "test",
+      "start": 158027,
+      "end": 159674
+    },
+    {
+      "word": "completo",
+      "start": 159674,
+      "end": 161320
+    },
+    {
+      "word": "con",
+      "start": 161320,
+      "end": 162966
+    },
+    {
+      "word": "más",
+      "start": 162966,
+      "end": 164612
+    },
+    {
+      "word": "ejercicios",
+      "start": 164612,
+      "end": 166258
+    },
+    {
+      "word": "de",
+      "start": 166258,
+      "end": 167904
+    },
+    {
+      "word": "audio.",
+      "start": 167904,
+      "end": 169550
+    },
+    {
+      "word": "Accede",
+      "start": 169550,
+      "end": 171196
+    },
+    {
+      "word": "al",
+      "start": 171196,
+      "end": 172843
+    },
+    {
+      "word": "enlace",
+      "start": 172843,
+      "end": 174489
+    },
+    {
+      "word": "en",
+      "start": 174489,
+      "end": 176135
+    },
+    {
+      "word": "la",
+      "start": 176135,
+      "end": 177781
+    },
+    {
+      "word": "descripción.",
+      "start": 177781,
+      "end": 179427
+    },
+    {
+      "word": "Suscríbete",
+      "start": 179427,
+      "end": 181073
+    },
+    {
+      "word": "para",
+      "start": 181073,
+      "end": 182719
+    },
+    {
+      "word": "recibir",
+      "start": 182719,
+      "end": 184365
+    },
+    {
+      "word": "nuevos",
+      "start": 184365,
+      "end": 186011
+    },
+    {
+      "word": "retos",
+      "start": 186011,
+      "end": 187658
+    },
+    {
+      "word": "cada",
+      "start": 187658,
+      "end": 189304
+    },
+    {
+      "word": "semana.",
+      "start": 189304,
+      "end": 190950
+    },
+    {
+      "word": "Comparte",
+      "start": 190950,
+      "end": 192596
+    },
+    {
+      "word": "tu",
+      "start": 192596,
+      "end": 194242
+    },
+    {
+      "word": "puntuación",
+      "start": 194242,
+      "end": 195888
+    },
+    {
+      "word": "en",
+      "start": 195888,
+      "end": 197534
+    },
+    {
+      "word": "los",
+      "start": 197534,
+      "end": 199180
+    },
+    {
+      "word": "comentarios.",
+      "start": 199180,
+      "end": 200827
+    },
+    {
+      "word": "¡No",
+      "start": 200827,
+      "end": 202473
+    },
+    {
+      "word": "dejes",
+      "start": 202473,
+      "end": 204119
+    },
+    {
+      "word": "que",
+      "start": 204119,
+      "end": 205765
+    },
+    {
+      "word": "el",
+      "start": 205765,
+      "end": 207411
+    },
+    {
+      "word": "sonido",
+      "start": 207411,
+      "end": 209057
+    },
+    {
+      "word": "te",
+      "start": 209057,
+      "end": 210703
+    },
+    {
+      "word": "gane!",
+      "start": 210703,
+      "end": 212349
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "text": "¿Puedes reconocer este sonido? Soy tu guía auditiva. ¿Te atreves a descubrirlo en solo diez segundos? Escucha el fragmento.",
+      "visual": "Persona con audífonos, onda sonora emergiendo del altavoz.",
+      "tone": "entusiasta",
+      "startWord": 0,
+      "endWord": 18,
+      "startTime": 0,
+      "endTime": 31276
+    },
+    {
+      "index": 1,
+      "text": "Ahora, pon atención. Identifica los detalles: el timbre, el ritmo, la dirección. Mientras escuchas, concéntrate en el fondo y en los ecos. Observa cómo cambian los volúmenes. La técnica es escuchar activamente: aislar capas, repetir mentalmente, marcar lo inesperado.",
+      "visual": "Animación de capas de audio superpuestas, resaltando frecuencias.",
+      "tone": "neutral",
+      "startWord": 19,
+      "endWord": 57,
+      "startTime": 31276,
+      "endTime": 95475
+    },
+    {
+      "index": 2,
+      "text": "Respuesta: es el canto del colibrí en primavera. ¿Por qué? El pico agudo, el trino rápido y la pausa breve son pistas clave. Usaste el truco de enfocar el tono alto y la cadencia.",
+      "visual": "Imagen de colibrí en vuelo, notas musicales resaltando agudos.",
+      "tone": "susurrado",
+      "startWord": 58,
+      "endWord": 91,
+      "startTime": 95475,
+      "endTime": 151443
+    },
+    {
+      "index": 3,
+      "text": "Descarga el test completo con más ejercicios de audio. Accede al enlace en la descripción. Suscríbete para recibir nuevos retos cada semana. Comparte tu puntuación en los comentarios. ¡No dejes que el sonido te gane!",
+      "visual": "Botón de descarga, icono de suscripción, cuadro de comentarios.",
+      "tone": "entusiasta",
+      "startWord": 92,
+      "endWord": 126,
+      "startTime": 151443,
+      "endTime": 209057
+    }
+  ]
+}

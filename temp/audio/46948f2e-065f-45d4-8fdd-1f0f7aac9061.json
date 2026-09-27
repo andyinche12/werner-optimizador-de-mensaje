@@ -1,0 +1,399 @@
+{
+  "metadata": {
+    "totalDuration": 31,
+    "wordCount": 67,
+    "generatedAt": "2026-09-27T04:00:36.761Z",
+    "voice": "es-ES-AlvaroNeural",
+    "tone": "profesional",
+    "contentType": "educativo"
+  },
+  "words": [
+    {
+      "word": "¿Sabías",
+      "start": 0,
+      "end": 463
+    },
+    {
+      "word": "que",
+      "start": 463,
+      "end": 925
+    },
+    {
+      "word": "la",
+      "start": 925,
+      "end": 1388
+    },
+    {
+      "word": "frase",
+      "start": 1388,
+      "end": 1851
+    },
+    {
+      "word": "‘Hola",
+      "start": 1851,
+      "end": 2313
+    },
+    {
+      "word": "Mundo’",
+      "start": 2313,
+      "end": 2776
+    },
+    {
+      "word": "es",
+      "start": 2776,
+      "end": 3239
+    },
+    {
+      "word": "la",
+      "start": 3239,
+      "end": 3701
+    },
+    {
+      "word": "llave",
+      "start": 3701,
+      "end": 4164
+    },
+    {
+      "word": "que",
+      "start": 4164,
+      "end": 4627
+    },
+    {
+      "word": "abre",
+      "start": 4627,
+      "end": 5090
+    },
+    {
+      "word": "cualquier",
+      "start": 5090,
+      "end": 5552
+    },
+    {
+      "word": "lenguaje",
+      "start": 5552,
+      "end": 6015
+    },
+    {
+      "word": "de",
+      "start": 6015,
+      "end": 6478
+    },
+    {
+      "word": "programación?",
+      "start": 6478,
+      "end": 6940
+    },
+    {
+      "word": "Desde",
+      "start": 6940,
+      "end": 7403
+    },
+    {
+      "word": "los",
+      "start": 7403,
+      "end": 7866
+    },
+    {
+      "word": "años",
+      "start": 7866,
+      "end": 8328
+    },
+    {
+      "word": "setenta,",
+      "start": 8328,
+      "end": 8791
+    },
+    {
+      "word": "los",
+      "start": 8791,
+      "end": 9254
+    },
+    {
+      "word": "programadores",
+      "start": 9254,
+      "end": 9716
+    },
+    {
+      "word": "la",
+      "start": 9716,
+      "end": 10179
+    },
+    {
+      "word": "usan",
+      "start": 10179,
+      "end": 10642
+    },
+    {
+      "word": "para",
+      "start": 10642,
+      "end": 11104
+    },
+    {
+      "word": "probar",
+      "start": 11104,
+      "end": 11567
+    },
+    {
+      "word": "su",
+      "start": 11567,
+      "end": 12030
+    },
+    {
+      "word": "entorno.",
+      "start": 12030,
+      "end": 12493
+    },
+    {
+      "word": "Hoy,",
+      "start": 12493,
+      "end": 12955
+    },
+    {
+      "word": "más",
+      "start": 12955,
+      "end": 13418
+    },
+    {
+      "word": "de",
+      "start": 13418,
+      "end": 13881
+    },
+    {
+      "word": "diez",
+      "start": 13881,
+      "end": 14343
+    },
+    {
+      "word": "millones",
+      "start": 14343,
+      "end": 14806
+    },
+    {
+      "word": "de",
+      "start": 14806,
+      "end": 15269
+    },
+    {
+      "word": "dispositivos",
+      "start": 15269,
+      "end": 15731
+    },
+    {
+      "word": "ejecutan",
+      "start": 15731,
+      "end": 16194
+    },
+    {
+      "word": "su",
+      "start": 16194,
+      "end": 16657
+    },
+    {
+      "word": "primer",
+      "start": 16657,
+      "end": 17119
+    },
+    {
+      "word": "‘Hola",
+      "start": 17119,
+      "end": 17582
+    },
+    {
+      "word": "Mundo’",
+      "start": 17582,
+      "end": 18045
+    },
+    {
+      "word": "cada",
+      "start": 18045,
+      "end": 18507
+    },
+    {
+      "word": "día.",
+      "start": 18507,
+      "end": 18970
+    },
+    {
+      "word": "Este",
+      "start": 18970,
+      "end": 19433
+    },
+    {
+      "word": "dato",
+      "start": 19433,
+      "end": 19896
+    },
+    {
+      "word": "demuestra",
+      "start": 19896,
+      "end": 20358
+    },
+    {
+      "word": "el",
+      "start": 20358,
+      "end": 20821
+    },
+    {
+      "word": "poder",
+      "start": 20821,
+      "end": 21284
+    },
+    {
+      "word": "universal",
+      "start": 21284,
+      "end": 21746
+    },
+    {
+      "word": "del",
+      "start": 21746,
+      "end": 22209
+    },
+    {
+      "word": "código.",
+      "start": 22209,
+      "end": 22672
+    },
+    {
+      "word": "¿Cuál",
+      "start": 22672,
+      "end": 23134
+    },
+    {
+      "word": "fue",
+      "start": 23134,
+      "end": 23597
+    },
+    {
+      "word": "tu",
+      "start": 23597,
+      "end": 24060
+    },
+    {
+      "word": "primer",
+      "start": 24060,
+      "end": 24522
+    },
+    {
+      "word": "‘Hola",
+      "start": 24522,
+      "end": 24985
+    },
+    {
+      "word": "Mundo’?",
+      "start": 24985,
+      "end": 25448
+    },
+    {
+      "word": "Cuéntanos",
+      "start": 25448,
+      "end": 25910
+    },
+    {
+      "word": "en",
+      "start": 25910,
+      "end": 26373
+    },
+    {
+      "word": "los",
+      "start": 26373,
+      "end": 26836
+    },
+    {
+      "word": "comentarios",
+      "start": 26836,
+      "end": 27299
+    },
+    {
+      "word": "y",
+      "start": 27299,
+      "end": 27761
+    },
+    {
+      "word": "sigue",
+      "start": 27761,
+      "end": 28224
+    },
+    {
+      "word": "nuestra",
+      "start": 28224,
+      "end": 28687
+    },
+    {
+      "word": "cuenta",
+      "start": 28687,
+      "end": 29149
+    },
+    {
+      "word": "para",
+      "start": 29149,
+      "end": 29612
+    },
+    {
+      "word": "más",
+      "start": 29612,
+      "end": 30075
+    },
+    {
+      "word": "datos",
+      "start": 30075,
+      "end": 30537
+    },
+    {
+      "word": "curiosos.",
+      "start": 30537,
+      "end": 31000
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "text": "¿Sabías que la frase ‘Hola Mundo’ es la llave que abre cualquier lenguaje de programación?",
+      "visual": null,
+      "tone": "entusiasta",
+      "startWord": 0,
+      "endWord": 14,
+      "startTime": 0,
+      "endTime": 6940
+    },
+    {
+      "index": 1,
+      "text": "Desde los años setenta, los programadores la usan para probar su entorno.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 15,
+      "endWord": 26,
+      "startTime": 6940,
+      "endTime": 12493
+    },
+    {
+      "index": 2,
+      "text": "Hoy, más de diez millones de dispositivos ejecutan su primer ‘Hola Mundo’ cada día.",
+      "visual": "pantalla mostrando código ‘Hola Mundo’",
+      "tone": "sorprendido",
+      "startWord": 27,
+      "endWord": 40,
+      "startTime": 12493,
+      "endTime": 18970
+    },
+    {
+      "index": 3,
+      "text": "Este dato demuestra el poder universal del código.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 41,
+      "endWord": 48,
+      "startTime": 18970,
+      "endTime": 22672
+    },
+    {
+      "index": 4,
+      "text": "¿Cuál fue tu primer ‘Hola Mundo’? Cuéntanos en los comentarios y sigue nuestra cuenta para más datos curiosos.",
+      "visual": null,
+      "tone": "invitante",
+      "startWord": 49,
+      "endWord": 66,
+      "startTime": 22672,
+      "endTime": 31000
+    }
+  ]
+}

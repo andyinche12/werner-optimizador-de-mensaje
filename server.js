@@ -1,195 +1,155 @@
-import express from "express";
-import dotenv from "dotenv";
-import Groq from "groq-sdk";
-import JSON5 from "json5";
-import path from "path";
-import { fileURLToPath } from "url";
+// server.js
+// Punto de entrada principal - Backend modular para werner-audio-factory
 
-dotenv.config();
+import express from 'express';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { env } from './config/env.js';
+
+// Rutas modulares
+import scriptRoutes from './routes/script.js';
+import ttsRoutes from './routes/tts.js';
+import generateRoutes from './routes/generate.js';
+import descriptionsRoutes from './routes/descriptions.js';
+import learnRoutes from './routes/learn.js';
+import audioRoutes from './routes/audio.js';
+
+// Servicios
+import { startCleanupInterval } from './services/storage.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 
-if (!process.env.GROQ_API_KEY) {
-  console.error("❌ ERROR: Falta GROQ_API_KEY en el archivo .env");
-  process.exit(1);
-}
+// ============================================================
+// MIDDLEWARE GLOBAL
+// ============================================================
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-  timeout: 60000,
-  maxRetries: 3
-});
+// CORS configurado
+app.use(cors({
+  origin: env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
-app.use(express.json({ limit: "1mb" }));
-app.use(express.static(path.join(__dirname, "public")));
-
-function friendlyGroqError(error) {
-  const status = error?.status ?? error?.statusCode;
-  const message = String(error?.message || "").toLowerCase();
-
-  if (status === 429 || message.includes("rate limit") || message.includes("quota")) {
-    return "Límite de peticiones excedido. Espera unos minutos y vuelve a intentarlo.";
-  }
-  if (error?.code === "ETIMEDOUT" || error?.code === "ECONNABORTED" || message.includes("timeout")) {
-    return "La solicitud tardó demasiado. Revisa tu conexión a internet.";
-  }
-  return `Error del servidor: ${error?.message || "Ocurrió un error inesperado."}`;
-}
-
-function normalizeOutput(value) {
-  if (typeof value === "string") return value;
-  if (!value) return "";
-  if (typeof value === "object") {
-    const lines = [];
-    const walk = (item, prefix = "") => {
-      if (Array.isArray(item)) {
-        item.forEach((v, i) => walk(v, `${prefix}${prefix ? " " : ""}${i + 1}.`));
-        return;
-      }
-      if (item && typeof item === "object") {
-        for (const [key, val] of Object.entries(item)) {
-          if (val && typeof val === "object") {
-            lines.push(`${prefix}${key}:`);
-            walk(val, `${prefix}  `);
-          } else {
-            lines.push(`${prefix}${key}: ${String(val ?? "")}`);
-          }
-        }
-        return;
-      }
-      lines.push(`${prefix}${String(item ?? "")}`);
-    };
-    walk(value);
-    return lines.join("\n").trim();
-  }
-  return String(value);
-}
-
-function extractJson(text) {
-  const raw = String(text || "").trim();
-  try { return JSON5.parse(raw); } catch {}
-  const startCandidates = [raw.indexOf("{"), raw.indexOf("[")].filter(i => i >= 0);
-  if (!startCandidates.length) throw new Error("No se encontró un objeto JSON válido.");
-  const start = Math.min(...startCandidates);
-  const end = Math.max(raw.lastIndexOf("}"), raw.lastIndexOf("]"));
-  if (end <= start) throw new Error("El JSON devuelto está incompleto.");
-  return JSON5.parse(raw.slice(start, end + 1));
-}
-
-function normalizeAnalysis(analysis) {
-  const keys = ["objective", "context", "instructions", "format", "constraints"];
-  const normalized = {};
-  keys.forEach((key) => {
-    let value = Number(analysis?.[key] ?? 0);
-    if (!Number.isFinite(value)) value = 0;
-    normalized[key] = Math.max(0, Math.min(100, Math.round(value)));
+// Rate limiting global (solo en producción)
+if (env.NODE_ENV === 'production') {
+  const globalLimiter = rateLimit({
+    windowMs: env.RATE_LIMIT_WINDOW_MS,
+    max: env.RATE_LIMIT_MAX_REQUESTS,
+    message: { error: 'Demasiadas peticiones. Intenta de nuevo en unos minutos.' },
+    standardHeaders: true,
+    legacyHeaders: false,
   });
-  const values = keys.map(k => normalized[k]);
-  normalized.score = Math.round((values.reduce((a, b) => a + b, 0) / 5) * 100) / 100;
-  return normalized;
+  app.use(globalLimiter);
+}
+
+// Body parsing
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// Logging de requests (dev)
+if (env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      console.log(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+    });
+    next();
+  });
 }
 
 // ============================================================
-// INSTRUCCIONES PARA DOS MODOS
+// RUTAS API
 // ============================================================
-const getSystemPrompt = (mode) => {
-  const baseInstructions = `
-DEBES RESPONDER EXCLUSIVAMENTE CON UN OBJETO JSON VÁLIDO.
-NO escribas absolutamente nada más, ni saludos, ni explicaciones, ni texto fuera del JSON.
-El JSON DEBE tener esta estructura exacta:
-{
-  "optimizedPrompt": "tu respuesta aquí",
-  "analysis": {
-    "score": 0-100,
-    "objective": 0-100,
-    "context": 0-100,
-    "instructions": 0-100,
-    "format": 0-100,
-    "constraints": 0-100
-  }
-}`;
 
-  if (mode === 'reply') {
-    return `
-Eres un experto en comunicación y redacción.
-El usuario te dará un mensaje que alguien le envió. Genera una respuesta perfecta para ese mensaje.
-${baseInstructions}`;
-  } else {
-    return `
-Eres un experto en redacción y mejora de textos.
-El usuario te dará un mensaje que quiere enviar. Reescribe y optimiza ese mensaje para que sea mejor.
-${baseInstructions}`;
-  }
-};
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    env: env.NODE_ENV,
+  });
+});
 
-app.post("/api/optimize", async (req, res) => {
-  try {
-    const { message, style = "Auto", tone = "Auto", detail = "Equilibrado", mode = "reply" } = req.body || {};
-    if (!message || !String(message).trim()) {
-      return res.status(400).json({ error: "Escribe un mensaje." });
-    }
+// Rutas modulares
+app.use('/api/script', scriptRoutes);        // Arquitecto + Escritor
+app.use('/api/tts', ttsRoutes);              // Edge TTS + Preview
+app.use('/api/generate', generateRoutes);    // Pipeline completo
+app.use('/api/descriptions', descriptionsRoutes); // SEO + Monetización
+app.use('/api/learn', learnRoutes);          // Aprendizaje de tops
+app.use('/api', audioRoutes);                // Archivos: audio, srt, json, script
 
-    const textToneInstructions = {
-      "Auto": "Elige el tono más natural.",
-      "Rápido": "Sé directo, conciso y ve al grano.",
-      "Formal": "Lenguaje profesional y estructurado.",
-      "Cariñoso": "Calidez, empatía y emojis (❤️, 😊, 🌸, ✨).",
-      "Coqueto": "Tono juguetón y divertido con emojis (😉, 😏, 😜, ✨)."
-    };
+// ============================================================
+// SERVIR FRONTEND (PWA)
+// ============================================================
+app.use(express.static(path.join(__dirname, 'public')));
 
-    const userPrompt = `
-Modo: ${mode === 'reply' ? 'Responder a un mensaje recibido' : 'Mejorar mi mensaje'}
-Estilo: ${style}
-Tono: ${tone}
-Instrucciones de tono: ${textToneInstructions[tone] || textToneInstructions["Auto"]}
-Detalle: ${detail}
+// SPA fallback - servir index.html para rutas no-API
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-CONTENIDO:
-${String(message).trim()}
-`;
+// ============================================================
+// ERROR HANDLING
+// ============================================================
 
-    const completion = await groq.chat.completions.create({
-      model: "openai/gpt-oss-120b",
-      temperature: 0.7,
-      messages: [
-        { role: "system", content: getSystemPrompt(mode) },
-        { role: "user", content: userPrompt }
-      ]
+// 404 para API
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ error: 'Endpoint no encontrado' });
+});
+
+// Error handler global
+app.use((err, req, res, next) => {
+  console.error('❌ Server error:', err);
+  
+  // Errores de validación Zod
+  if (err.name === 'ZodError') {
+    return res.status(400).json({ 
+      error: 'Datos inválidos', 
+      details: err.flatten?.() || err.errors 
     });
-
-    const content = completion.choices?.[0]?.message?.content || "";
-    
-    // === ESCUDO DE SEGURIDAD ===
-    let parsed;
-    let optimizedPrompt;
-    let analysis;
-
-    try {
-      parsed = extractJson(content);
-      optimizedPrompt = normalizeOutput(parsed.optimizedPrompt);
-      analysis = normalizeAnalysis(parsed.analysis || {});
-      if (!optimizedPrompt) throw new Error("Prompt vacío");
-    } catch (error) {
-      console.warn("La IA no devolvió JSON válido. Usando mensaje de respaldo.");
-      optimizedPrompt = "Lo siento, no entendí el mensaje. Por favor, intenta de nuevo con un mensaje más claro.";
-      analysis = { score: 0, objective: 0, context: 0, instructions: 0, format: 0, constraints: 0 };
-    }
-
-    return res.json({ optimizedPrompt, analysis });
-  } catch (error) {
-    console.error("Optimize error:", error);
-    return res.status(500).json({ error: friendlyGroqError(error) });
   }
+  
+  // Errores de rate limit
+  if (err.name === 'RateLimitError') {
+    return res.status(429).json({ error: 'Demasiadas peticiones' });
+  }
+  
+  // Error genérico
+  const status = err.status || err.statusCode || 500;
+  const message = env.NODE_ENV === 'production' 
+    ? 'Error interno del servidor' 
+    : err.message || 'Error desconocido';
+  
+  res.status(status).json({ error: message });
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+// ============================================================
+// INICIO
+// ============================================================
+
+// Crear directorio temp si no existe
+import('fs').then(fs => {
+  if (!fs.existsSync('./temp')) fs.mkdirSync('./temp', { recursive: true });
 });
+
+// Iniciar limpieza automática
+startCleanupInterval(6); // cada 6 horas
 
 app.listen(PORT, () => {
-  console.log(`✅ werner Optimizador de Mensaje ejecutándose en http://localhost:${PORT}`);
+  console.log(`✅ werner Audio Factory v2.0 ejecutándose en http://localhost:${PORT}`);
+  console.log(`   Environment: ${env.NODE_ENV}`);
+  console.log(`   Frontend URL: ${env.FRONTEND_URL}`);
+  console.log(`   Temp dir: ${env.TEMP_DIR}`);
 });
+
+export default app;

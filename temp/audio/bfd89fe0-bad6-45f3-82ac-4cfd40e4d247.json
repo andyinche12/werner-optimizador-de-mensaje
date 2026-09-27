@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "totalDuration": 2,
+    "wordCount": 6,
+    "generatedAt": "2026-09-26T19:47:05.957Z",
+    "voice": "es-ES-AlvaroNeural",
+    "tone": "neutral"
+  },
+  "words": [
+    {
+      "word": "Test",
+      "start": 0,
+      "end": 333
+    },
+    {
+      "word": "de",
+      "start": 333,
+      "end": 667
+    },
+    {
+      "word": "voz",
+      "start": 667,
+      "end": 1000
+    },
+    {
+      "word": "para",
+      "start": 1000,
+      "end": 1333
+    },
+    {
+      "word": "verificar",
+      "start": 1333,
+      "end": 1667
+    },
+    {
+      "word": "velocidad.",
+      "start": 1667,
+      "end": 2000
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "text": "Test de voz para verificar velocidad.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 0,
+      "endWord": 5,
+      "startTime": 0,
+      "endTime": 2000
+    }
+  ]
+}

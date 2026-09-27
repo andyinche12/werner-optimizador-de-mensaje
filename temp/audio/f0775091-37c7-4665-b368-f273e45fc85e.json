@@ -1,0 +1,354 @@
+{
+  "metadata": {
+    "totalDuration": 28,
+    "wordCount": 54,
+    "generatedAt": "2026-09-26T19:37:15.574Z",
+    "voice": "es-ES-AlvaroNeural",
+    "tone": "profesional",
+    "contentType": "educativo"
+  },
+  "words": [
+    {
+      "word": "¡Ups!",
+      "start": 0,
+      "end": 519
+    },
+    {
+      "word": "Error",
+      "start": 519,
+      "end": 1037
+    },
+    {
+      "word": "al",
+      "start": 1037,
+      "end": 1556
+    },
+    {
+      "word": "imprimir",
+      "start": 1556,
+      "end": 2074
+    },
+    {
+      "word": "Hola",
+      "start": 2074,
+      "end": 2593
+    },
+    {
+      "word": "Mundo.",
+      "start": 2593,
+      "end": 3111
+    },
+    {
+      "word": "Apareció",
+      "start": 3111,
+      "end": 3630
+    },
+    {
+      "word": "un",
+      "start": 3630,
+      "end": 4148
+    },
+    {
+      "word": "mensaje",
+      "start": 4148,
+      "end": 4667
+    },
+    {
+      "word": "raro:",
+      "start": 4667,
+      "end": 5185
+    },
+    {
+      "word": "En",
+      "start": 5185,
+      "end": 5704
+    },
+    {
+      "word": "Python",
+      "start": 5704,
+      "end": 6222
+    },
+    {
+      "word": "la",
+      "start": 6222,
+      "end": 6741
+    },
+    {
+      "word": "sintaxis",
+      "start": 6741,
+      "end": 7259
+    },
+    {
+      "word": "es",
+      "start": 7259,
+      "end": 7778
+    },
+    {
+      "word": "simple:",
+      "start": 7778,
+      "end": 8296
+    },
+    {
+      "word": "escribe",
+      "start": 8296,
+      "end": 8815
+    },
+    {
+      "word": "print('Hola",
+      "start": 8815,
+      "end": 9333
+    },
+    {
+      "word": "Mundo')",
+      "start": 9333,
+      "end": 9852
+    },
+    {
+      "word": "y",
+      "start": 9852,
+      "end": 10370
+    },
+    {
+      "word": "usa",
+      "start": 10370,
+      "end": 10889
+    },
+    {
+      "word": "paréntesis",
+      "start": 10889,
+      "end": 11407
+    },
+    {
+      "word": "y",
+      "start": 11407,
+      "end": 11926
+    },
+    {
+      "word": "comillas.",
+      "start": 11926,
+      "end": 12444
+    },
+    {
+      "word": "Veamos",
+      "start": 12444,
+      "end": 12963
+    },
+    {
+      "word": "la",
+      "start": 12963,
+      "end": 13481
+    },
+    {
+      "word": "corrección.",
+      "start": 13481,
+      "end": 14000
+    },
+    {
+      "word": "Ejecuta",
+      "start": 14000,
+      "end": 14519
+    },
+    {
+      "word": "el",
+      "start": 14519,
+      "end": 15037
+    },
+    {
+      "word": "código",
+      "start": 15037,
+      "end": 15556
+    },
+    {
+      "word": "y",
+      "start": 15556,
+      "end": 16074
+    },
+    {
+      "word": "la",
+      "start": 16074,
+      "end": 16593
+    },
+    {
+      "word": "salida",
+      "start": 16593,
+      "end": 17111
+    },
+    {
+      "word": "será:",
+      "start": 17111,
+      "end": 17630
+    },
+    {
+      "word": "Hola",
+      "start": 17630,
+      "end": 18148
+    },
+    {
+      "word": "Mundo.",
+      "start": 18148,
+      "end": 18667
+    },
+    {
+      "word": "Ahora",
+      "start": 18667,
+      "end": 19185
+    },
+    {
+      "word": "es",
+      "start": 19185,
+      "end": 19704
+    },
+    {
+      "word": "tu",
+      "start": 19704,
+      "end": 20222
+    },
+    {
+      "word": "turno:",
+      "start": 20222,
+      "end": 20741
+    },
+    {
+      "word": "escribe",
+      "start": 20741,
+      "end": 21259
+    },
+    {
+      "word": "tu",
+      "start": 21259,
+      "end": 21778
+    },
+    {
+      "word": "saludo",
+      "start": 21778,
+      "end": 22296
+    },
+    {
+      "word": "y",
+      "start": 22296,
+      "end": 22815
+    },
+    {
+      "word": "compártelo",
+      "start": 22815,
+      "end": 23333
+    },
+    {
+      "word": "en",
+      "start": 23333,
+      "end": 23852
+    },
+    {
+      "word": "los",
+      "start": 23852,
+      "end": 24370
+    },
+    {
+      "word": "comentarios.",
+      "start": 24370,
+      "end": 24889
+    },
+    {
+      "word": "¡Vamos,",
+      "start": 24889,
+      "end": 25407
+    },
+    {
+      "word": "crea",
+      "start": 25407,
+      "end": 25926
+    },
+    {
+      "word": "tu",
+      "start": 25926,
+      "end": 26444
+    },
+    {
+      "word": "propio",
+      "start": 26444,
+      "end": 26963
+    },
+    {
+      "word": "Hola",
+      "start": 26963,
+      "end": 27481
+    },
+    {
+      "word": "Mundo!",
+      "start": 27481,
+      "end": 28000
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "text": "¡Ups! Error al imprimir Hola Mundo.",
+      "visual": null,
+      "tone": "entusiasta",
+      "startWord": 0,
+      "endWord": 5,
+      "startTime": 0,
+      "endTime": 3111
+    },
+    {
+      "index": 1,
+      "text": "Apareció un mensaje raro:",
+      "visual": "pantalla con código roto",
+      "tone": "neutral",
+      "startWord": 6,
+      "endWord": 9,
+      "startTime": 3111,
+      "endTime": 5185
+    },
+    {
+      "index": 2,
+      "text": "En Python la sintaxis es simple: escribe print('Hola Mundo') y usa paréntesis y comillas.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 10,
+      "endWord": 23,
+      "startTime": 5185,
+      "endTime": 12444
+    },
+    {
+      "index": 3,
+      "text": "Veamos la corrección.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 24,
+      "endWord": 26,
+      "startTime": 12444,
+      "endTime": 14000
+    },
+    {
+      "index": 4,
+      "text": "Ejecuta el código y la salida será: Hola Mundo.",
+      "visual": "consola mostrando Hola Mundo",
+      "tone": "neutral",
+      "startWord": 27,
+      "endWord": 35,
+      "startTime": 14000,
+      "endTime": 18667
+    },
+    {
+      "index": 5,
+      "text": "Ahora es tu turno: escribe tu saludo y compártelo en los comentarios.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 36,
+      "endWord": 47,
+      "startTime": 18667,
+      "endTime": 24889
+    },
+    {
+      "index": 6,
+      "text": "¡Vamos, crea tu propio Hola Mundo!",
+      "visual": null,
+      "tone": "entusiasta",
+      "startWord": 48,
+      "endWord": 53,
+      "startTime": 24889,
+      "endTime": 28000
+    }
+  ]
+}

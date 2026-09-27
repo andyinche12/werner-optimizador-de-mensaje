@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "totalDuration": 48.168005,
+    "wordCount": 5,
+    "generatedAt": "2026-09-27T04:32:58.547Z",
+    "voice": "es-ES-AlvaroNeural",
+    "tone": "neutral"
+  },
+  "words": [
+    {
+      "word": "Hola",
+      "start": 0,
+      "end": 9634
+    },
+    {
+      "word": "mundo",
+      "start": 9634,
+      "end": 19267
+    },
+    {
+      "word": "prueba",
+      "start": 19267,
+      "end": 28901
+    },
+    {
+      "word": "con",
+      "start": 28901,
+      "end": 38534
+    },
+    {
+      "word": "ffmpeg.",
+      "start": 38534,
+      "end": 48168
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "text": "Hola mundo prueba con ffmpeg.",
+      "visual": null,
+      "tone": "neutral",
+      "startWord": 0,
+      "endWord": 4,
+      "startTime": 0,
+      "endTime": 48168
+    }
+  ]
+}
